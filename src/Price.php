@@ -46,8 +46,8 @@ class Price
         $this->validateValues($nett, $gross);
         $this->currencySymbol = $this->processCurrencySymbol($currencySymbol);
 
-		$this->nett = $nett;
-		$this->gross = $gross;
+        $this->nett = $nett;
+        $this->gross = $gross;
 	}
 
     /**
