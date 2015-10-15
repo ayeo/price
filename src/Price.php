@@ -41,14 +41,14 @@ class Price
      * @param float $gross
      * @param null $currencySymbol
      */
-	public function __construct($nett = 0.00, $gross = 0.00, $currencySymbol = null)
-	{
+    public function __construct($nett = 0.00, $gross = 0.00, $currencySymbol = null)
+    {
         $this->validateValues($nett, $gross);
         $this->currencySymbol = $this->processCurrencySymbol($currencySymbol);
 
         $this->nett = $nett;
         $this->gross = $gross;
-	}
+    }
 
     /**
      * @param float $nett
