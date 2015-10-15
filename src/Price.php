@@ -198,9 +198,7 @@ class Price
      */
     public function subtractGross($gross)
     {
-        //todo: must be numeric
-		//todo: gross must be positive!
-        //todo: must be greater than zero
+        $this->validateValue($gross);
 
         if ($gross > $this->getGross())
         {
@@ -208,12 +206,24 @@ class Price
         }
 
         $newGross = $this->getGross() - (float) $gross;
-        $newNett = $newGross / (1 + $this->getTax() / 100);
+        $newNett = $this->calculateNett($newGross);
 
         return new Price($newNett, $newGross, $this->currencySymbol);
     }
 
-    //todo: addGross()
+    /**
+     * @param float $gross
+     * @return Price
+     */
+    public function addGross($gross)
+    {
+        $this->validateValue($gross);
+
+        $newGross = $this->getGross() + (float) $gross;
+        $newNett = $newNett = $this->calculateNett($newGross);
+
+        return new Price($newNett, $newGross, $this->currencySymbol);
+    }
 
     /**
      * @param Price $A
@@ -292,5 +302,28 @@ class Price
                 throw new \LogicException($message);
             }
         }
+    }
+
+    /**
+     * @param $gross
+     */
+    private function validateValue($gross)
+    {
+        if (is_numeric($gross) === false) {
+            throw new \LogicException('Value must be numeric');
+        }
+
+        if ($gross <= 0) {
+            throw new \LogicException('Value must be greater than zero');
+        }
+    }
+
+    /**
+     * @param float $gross
+     * @return float
+     */
+    private function calculateNett($gross)
+    {
+        return $gross / (1 + $this->getTax() / 100);
     }
 }

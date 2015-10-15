@@ -186,4 +186,72 @@ class PriceTest extends \PHPUnit_Framework_TestCase
             [100.00,    123.00,     100.0014,   123.0021,   true], //fails with precision 4
         ];
     }
+
+    /**
+     * @expectedException           LogicException
+     * @expectedExceptionMessage    Nett must be positive
+     */
+    public function testNegativeNett()
+    {
+        new Price(-10.00, 20);
+    }
+
+    /**
+     * @expectedException           LogicException
+     * @expectedExceptionMessage    Gross must be positive
+     */
+    public function testNegativeNettAndGross()
+    {
+        new Price(10.00, -15.00);
+    }
+
+    public function  testSubtractGross()
+    {
+        $price = new Price(13.34, 15.53);
+        $result = $price->subtractGross(10.00);
+
+        $this->assertEquals(5.53, $result->getGross());
+    }
+
+    /**
+     * @expectedException           LogicException
+     * @expectedExceptionMessage    Value must be greater than zero
+     */
+    public function testSubtractNegativeGross()
+    {
+        $price = new Price(13.34, 15.53);
+        $price->subtractGross(-10.00);
+    }
+
+    /**
+     * @expectedException           LogicException
+     * @expectedExceptionMessage    Value must be greater than zero
+     */
+    public function testSubtractZeroGross()
+    {
+        $price = new Price(13.34, 15.53);
+        $price->subtractGross(0.00);
+    }
+
+    /**
+     * @expectedException           LogicException
+     * @expectedExceptionMessage    Value must be numeric
+     */
+    public function testSubtractString()
+    {
+        $price = new Price(13.34, 15.53);
+        $price->subtractGross("number");
+    }
+
+    public function testAddGross()
+    {
+        $A = new Price(13.24, 20.99, 'USD');
+        $result = $A->addGross(10.01);
+
+        $this->assertEquals(31.00, $result->getGross());
+        $this->assertEquals('USD', $result->getCurrencySymbol());
+        $this->assertEquals(20.99, $A->getGross());
+
+    }
+
 }
