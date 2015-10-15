@@ -251,7 +251,66 @@ class PriceTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(31.00, $result->getGross());
         $this->assertEquals('USD', $result->getCurrencySymbol());
         $this->assertEquals(20.99, $A->getGross());
-
     }
 
+    /**
+     * @expectedException           LogicException
+     * @expectedExceptionMessage    Tax percent must positive
+     */
+    public function testBuildByNettUsingNegativeTax()
+    {
+        Price::buildByNett(100.00, -2);
+    }
+
+    /**
+     * @expectedException           LogicException
+     * @expectedExceptionMessage    Tax percent must be integer
+     */
+    public function testBuildByNettUsingNonIntegerLikeTax()
+    {
+        Price::buildByNett(100.00, 2.02);
+    }
+
+    /**
+     * @expectedException           LogicException
+     * @expectedExceptionMessage    Tax percent must be integer
+     */
+    public function testBuildByNettUsingNonIntegerLikeStringTax()
+    {
+        Price::buildByNett(100.00, "2.02");
+    }
+
+    public function testBuildByNettUsingIntegerTax()
+    {
+        $price = Price::buildByNett(100.00, 23);
+        $this->assertEquals(123.00, $price->getGross());
+    }
+
+    public function testBuildByNettUsingIntegerLikeTax()
+    {
+        $price = Price::buildByNett(100.00, 23.00);
+        $this->assertEquals(123.00, $price->getGross());
+    }
+
+    public function testBuildByNettUsingIntegerLikStringTax()
+    {
+        $price = Price::buildByNett(100.00, "23.00");
+        $this->assertEquals(123.00, $price->getGross());
+    }
+
+    public function testBuildByGross()
+    {
+        $price = Price::buildByGross(123.00, 23);
+        $this->assertEquals(100.00, $price->getNett());
+    }
+
+    public function testMultiply()
+    {
+        $price = new Price(120.00, 150.00, 'PLN');
+        $result = $price->multiply(5);
+
+        $this->assertEquals(600.00, $result->getNett());
+        $this->assertEquals(750.00, $result->getGross());
+        $this->assertEquals('PLN', $result->getCurrencySymbol());
+    }
 }
