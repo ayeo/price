@@ -1,0 +1,36 @@
+{
+  "name": "ayeo/price",
+  "version": "1.0.0",
+  "description": "Simple price model",
+  "keywords": [
+    "price",
+    "model",
+  ],
+  "type": "library",
+  "homepage": "https://github.com/ayeo/price",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "ayeo",
+      "email": "me@ayeo.pl",
+      "homepage": "http://ayeo.pl"
+    }
+  ],
+  "require": {
+    "php": ">=5.4.0"
+  },
+  "require-dev": {
+    "phpunit/phpunit": "~4.8"
+  },
+  "autoload": {
+    "psr-4": {
+      "Ayeo\\Price\\": "src//",
+      "Ayeo\\Price\\Test\\": "tests//"
+    }
+  },
+  "extra": {
+    "branch-alias": {
+      "dev-master": "1.0.x-dev"
+    }
+  }
+}
