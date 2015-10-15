@@ -138,15 +138,15 @@ class Price
      * @param Price $priceToAdd
      * @return Price
      */
-	public function add(Price $priceToAdd)
-	{
-		$this->checkCurrencies($this, $priceToAdd);
+    public function add(Price $priceToAdd)
+    {
+        $this->checkCurrencies($this, $priceToAdd);
 
-		$newGross = $this->getGross() + $priceToAdd->getGross();
-		$newNett = $this->getNett() + $priceToAdd->getNett();
+        $newGross = $this->getGross() + $priceToAdd->getGross();
+        $newNett = $this->getNett() + $priceToAdd->getNett();
 
-		return new Price($newNett, $newGross, $this->currencySymbol);
-	}
+        return new Price($newNett, $newGross, $this->currencySymbol);
+    }
 
     /**
      * @param Price $priceToSubtract
