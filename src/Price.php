@@ -39,7 +39,7 @@ class Price
     /**
      * @param float $nett
      * @param float $gross
-     * @param null $currencySymbol
+     * @param null|string $currencySymbol
      */
     public function __construct($nett = 0.00, $gross = 0.00, $currencySymbol = null)
     {
@@ -265,7 +265,7 @@ class Price
     }
 
     /**
-     * @param $gross
+     * @param double $gross
      */
     private function validateValue($gross)
     {
