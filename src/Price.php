@@ -44,8 +44,8 @@ class Price
     public function __construct($nett = 0.00, $gross = 0.00, $currencySymbol = null)
     {
         $this->validateValues($nett, $gross);
-        $this->currencySymbol = $this->processCurrencySymbol($currencySymbol);
 
+        $this->currencySymbol = $this->processCurrencySymbol($currencySymbol);
         $this->nett = $nett;
         $this->gross = $gross;
     }
@@ -57,10 +57,7 @@ class Price
      */
     static public function buildByNett($nett, $tax)
     {
-        $tax = Price::processTax($tax);
-        $gross = $nett * (100 + $tax) / 100;
-
-        return new Price($nett, $gross);
+        return new Price($nett, $nett * (100 + Price::processTax($tax)) / 100);
     }
 
     /**
@@ -70,10 +67,7 @@ class Price
      */
     static public function buildByGross($gross, $tax)
     {
-        $tax = Price::processTax($tax);
-        $nett = $gross / (100 + $tax) * 100;
-
-        return new Price($nett, $gross);
+        return new Price(Price::calculateNett($gross, Price::processTax($tax)), $gross);
     }
 
     /**
@@ -220,7 +214,7 @@ class Price
         }
 
         $newGross = $this->getGross() - (float) $gross;
-        $newNett = $this->calculateNett($newGross);
+        $newNett = $this->calculateNett($newGross, $this->getTax());
 
         return new Price($newNett, $newGross, $this->currencySymbol);
     }
@@ -234,7 +228,7 @@ class Price
         $this->validateValue($gross);
 
         $newGross = $this->getGross() + (float) $gross;
-        $newNett = $newNett = $this->calculateNett($newGross);
+        $newNett = $this->calculateNett($newGross, $this->getTax());
 
         return new Price($newNett, $newGross, $this->currencySymbol);
     }
@@ -262,11 +256,12 @@ class Price
 
     /**
      * @param float $gross
+     * @param int $tax
      * @return float
      */
-    private function calculateNett($gross)
+    static private function calculateNett($gross, $tax)
     {
-        return $gross / (1 + $this->getTax() / 100);
+        return $gross / (100 + $tax) * 100;
     }
 
     /**
@@ -302,6 +297,7 @@ class Price
                 $A->getCurrencySymbol(),
                 $B->getCurrencySymbol()
             );
+            
             throw new \LogicException($message);
         }
     }

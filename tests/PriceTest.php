@@ -253,6 +253,18 @@ class PriceTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(20.99, $A->getGross());
     }
 
+    public function testNettValueAfterAddGross()
+    {
+        $A = new Price(100.00, 123.00, 'USD');
+        $result = $A->addGross(123.00);
+
+        $this->assertEquals(246.00, $result->getGross());
+        $this->assertEquals(200.00, $result->getNett());
+        $this->assertEquals(23, $result->getTax());
+        $this->assertEquals('USD', $result->getCurrencySymbol());
+
+    }
+
     /**
      * @expectedException           LogicException
      * @expectedExceptionMessage    Tax percent must positive
