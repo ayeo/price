@@ -6,9 +6,9 @@
 
 # Price
 
-Simple DDD price model. The goal is to devleop the easiest model usage possible. It means simple 
-object creation and self-validating. Object acts as Value Object. It is designed to be side effect 
-free (it is immutable).
+Simple DDD price model. The goal is to make model usage as easy as possible. Creating object is 
+easy and dont require any additional objects. Object acts as Value Object - is immutable and 
+self-validating. It is designed to be side effect free.
 
 Immutable
 =========
