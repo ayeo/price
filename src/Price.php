@@ -55,7 +55,7 @@ class Price
      * @param integer $tax
      * @return Price
      */
-    static public function buildByNett($nett, $tax)
+    public static function buildByNett($nett, $tax)
     {
         return new Price($nett, $nett * (100 + Price::processTax($tax)) / 100);
     }
@@ -65,7 +65,7 @@ class Price
      * @param integer $tax
      * @return Price
      */
-    static public function buildByGross($gross, $tax)
+    public static function buildByGross($gross, $tax)
     {
         return new Price(Price::calculateNett($gross, Price::processTax($tax)), $gross);
     }
@@ -237,7 +237,7 @@ class Price
      * @param $tax
      * @return int
      */
-    static private function processTax($tax)
+    private static function processTax($tax)
     {
         if (is_numeric($tax) === false) {
             throw new \LogicException('Tax percent must be integer');
@@ -259,7 +259,7 @@ class Price
      * @param int $tax
      * @return float
      */
-    static private function calculateNett($gross, $tax)
+    private static function calculateNett($gross, $tax)
     {
         return $gross / (100 + $tax) * 100;
     }
@@ -297,7 +297,7 @@ class Price
                 $A->getCurrencySymbol(),
                 $B->getCurrencySymbol()
             );
-            
+
             throw new \LogicException($message);
         }
     }
