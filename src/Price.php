@@ -41,8 +41,13 @@ class Price
      * @param float $gross
      * @param null|string $currencySymbol
      */
-    public function __construct($nett = 0.00, $gross = 0.00, $currencySymbol = null)
+    public function __construct($nett = 0.00, $gross = null, $currencySymbol = null)
     {
+        if (is_null($gross))
+        {
+            $gross = $nett;
+        }
+
         $this->validateValues($nett, $gross);
 
         $this->currencySymbol = $this->processCurrencySymbol($currencySymbol);
@@ -161,14 +166,15 @@ class Price
     }
 
     /**
-     * @param integer $times
+     * @param float $times
      * @return Price
      */
     public function multiply($times)
     {
-        if (is_integer($times) === false) {
-            throw new \LogicException('Multiply param must be integer');
-        }
+        //fixme: numeric
+//        if (is_integer($times) === false) {
+//            throw new \LogicException('Multiply param must be integer');
+//        }
 
         if ($times <= 0) {
             throw new \LogicException('Multiply param must greater than 0');
