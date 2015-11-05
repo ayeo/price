@@ -166,9 +166,6 @@ class Price
      */
     public function multiply($times)
     {
-        if (is_integer($times) === false) {
-            throw new \LogicException('Multiply param must be integer');
-        }
 //fixme: do we really need this constraint?
 //        if (is_integer($times) === false) {
 //            throw new \LogicException('Multiply param must be integer');
@@ -215,7 +212,6 @@ class Price
         $this->validateValue($gross);
 
         if ($gross > $this->getGross()) {
-            return new Price();
             return new Price(0, 0, $this->currencySymbol);
         }
 
