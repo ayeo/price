@@ -334,7 +334,8 @@ class Price
             throw new \LogicException('Gross must be positive');
         }
 
-        if ($nett > $gross) {
+        //floating point calculations precision problem here
+        if (round($nett, 6) > round($gross, 6)) {
             throw new \LogicException('Nett must not be greater than gross');
         }
     }
