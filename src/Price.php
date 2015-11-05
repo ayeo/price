@@ -41,7 +41,7 @@ class Price
      * @param float $gross
      * @param null $currencySymbol
      */
-    public function __construct($nett = 0.00, $gross = 0.00, $currencySymbol = null)
+    public function __construct($nett = 0.00, $gross = 0.00, $currencySymbol)
     {
         $this->validateValues($nett, $gross);
 
@@ -202,6 +202,7 @@ class Price
     }
 
     /**
+     * todo: currency validation
      * @param float $gross
      * @return Price
      */
