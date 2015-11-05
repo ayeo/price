@@ -77,7 +77,7 @@ class Price
      * @param $currencySymbol
      * @return Price
      */
-    public function buildEmpty($currencySymbol)
+    public static function buildEmpty($currencySymbol)
     {
         return new Price(0, 0, $currencySymbol);
     }
