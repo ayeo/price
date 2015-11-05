@@ -186,7 +186,19 @@ class Price
         $nett = $this->getNett() * $times;
         $gross = $this->getGross() * $times;
 
-        return new Price($nett, $gross, $this->currencySymbol);
+        return new Price($nett, $gross, $this->getCurrencySymbol());
+    }
+
+    public function divide($times)
+    {
+        if ($times <= 0) {
+            throw new \LogicException('Divide factor must be positive and greater than zero');
+        }
+
+        $nett = $this->getNett() / $times;
+        $gross = $this->getGross() / $times;
+
+        return new Price($nett, $gross, $this->getCurrencySymbol());
     }
 
     /**
