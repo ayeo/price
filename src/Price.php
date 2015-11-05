@@ -56,6 +56,33 @@ class Price
     }
 
     /**
+     * Builds price using same value for gross and nett
+     * That means 0% tax
+     *
+     * @param float $value
+     * @param $currencySymbol
+     * @return Price
+     */
+    public function build($value, $currencySymbol)
+    {
+        return new Price($value, $value, $currencySymbol);
+    }
+
+    /**
+     * fixme: does zero price needs currency symbol?
+     * supporting the issue is overkill (no explicit advantages)
+     *
+     * Builds zero price
+     *
+     * @param $currencySymbol
+     * @return Price
+     */
+    public function buildEmpty($currencySymbol)
+    {
+        return new Price(0, 0, $currencySymbol);
+    }
+
+    /**
      * @param float $nett
      * @param integer $tax
      * @param null|string $currencySymbol
@@ -72,7 +99,7 @@ class Price
      * @param null|string $currencySymbol
      * @return Price
      */
-    public static function buildByGross($gross, $tax, $currencySymbol = null)
+    public static function buildByGross($gross, $tax, $currencySymbol)
     {
         return new Price(Price::calculateNett($gross, Price::processTax($tax)), $gross, $currencySymbol);
     }
@@ -164,7 +191,7 @@ class Price
             return new Price($newNett, $newGross, $this->currencySymbol);
         }
 
-        return new Price(0, 0, $this->getCurrencySymbol()); //zero
+        return Price::buildEmpty($this->getCurrencySymbol());
     }
 
     /**
