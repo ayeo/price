@@ -164,7 +164,7 @@ class Price
             return new Price($newNett, $newGross, $this->currencySymbol);
         }
 
-        return new Price(); //zero
+        return new Price(0, 0, $this->getCurrencySymbol()); //zero
     }
 
     /**
@@ -354,7 +354,7 @@ class Price
             }
         }
     }
-    
+
     //default format, use own formatting for more custom purposes
     public function __toString()
     {

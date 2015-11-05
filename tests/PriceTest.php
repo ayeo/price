@@ -12,7 +12,7 @@ class PriceTest extends \PHPUnit_Framework_TestCase
      */
 	public function testCreating($nett, $gross, $tax)
 	{
-		$price = new Price($nett, $gross);
+		$price = new Price($nett, $gross, 'USD');
         $this->assertEquals($tax, $price->getTax());
 	}
 
@@ -55,8 +55,8 @@ class PriceTest extends \PHPUnit_Framework_TestCase
 		$nettA = $grossA / (100 + $tax) * 100;
 		$nettB = $grossB / (100 + $tax) * 100;
 
-		$A = new Price($nettA, $grossA);
-		$B = new Price($nettB, $grossB);
+		$A = new Price($nettA, $grossA, 'USD');
+		$B = new Price($nettB, $grossB, 'USD');
 
 		$this->assertEquals($expectedGross, $A->add($B)->getGross());
 		$this->assertEquals($expectedGross, $B->add($A)->getGross());
@@ -117,12 +117,12 @@ class PriceTest extends \PHPUnit_Framework_TestCase
      */
     public function testNettGreaterThanGross()
     {
-        new Price(100.00, 90.00);
+        new Price(100.00, 90.00, 'USD');
     }
 
     public function testNettSameAsGross()
     {
-        $price = new Price(100.00, 100.00);
+        $price = new Price(100.00, 100.00, 'USD');
         $this->assertEquals(0, $price->getTax());
     }
 
@@ -162,8 +162,8 @@ class PriceTest extends \PHPUnit_Framework_TestCase
      */
     public function testIsEqual($nettA, $grossA, $nettB, $grossB, $expectIsEqual)
     {
-        $A = new Price($nettA, $grossA);
-        $B = new Price($nettB, $grossB);
+        $A = new Price($nettA, $grossA, 'USD');
+        $B = new Price($nettB, $grossB, 'USD');
 
         if ($expectIsEqual)
         {
@@ -193,7 +193,7 @@ class PriceTest extends \PHPUnit_Framework_TestCase
      */
     public function testNegativeNett()
     {
-        new Price(-10.00, 20);
+        new Price(-10.00, 20, 'USD');
     }
 
     /**
@@ -202,12 +202,12 @@ class PriceTest extends \PHPUnit_Framework_TestCase
      */
     public function testNegativeNettAndGross()
     {
-        new Price(10.00, -15.00);
+        new Price(10.00, -15.00, 'USD');
     }
 
     public function  testSubtractGross()
     {
-        $price = new Price(13.34, 15.53);
+        $price = new Price(13.34, 15.53, 'USD');
         $result = $price->subtractGross(10.00);
 
         $this->assertEquals(5.53, $result->getGross());
@@ -219,7 +219,7 @@ class PriceTest extends \PHPUnit_Framework_TestCase
      */
     public function testSubtractNegativeGross()
     {
-        $price = new Price(13.34, 15.53);
+        $price = new Price(13.34, 15.53, 'USD');
         $price->subtractGross(-10.00);
     }
 
@@ -229,7 +229,7 @@ class PriceTest extends \PHPUnit_Framework_TestCase
      */
     public function testSubtractZeroGross()
     {
-        $price = new Price(13.34, 15.53);
+        $price = new Price(13.34, 15.53, 'USD');
         $price->subtractGross(0.00);
     }
 
@@ -239,7 +239,7 @@ class PriceTest extends \PHPUnit_Framework_TestCase
      */
     public function testSubtractString()
     {
-        $price = new Price(13.34, 15.53);
+        $price = new Price(13.34, 15.53, 'USD');
         $price->subtractGross("number");
     }
 
