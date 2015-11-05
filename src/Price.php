@@ -350,4 +350,10 @@ class Price
             }
         }
     }
+
+
+    public function __toString()
+    {
+        return number_format($this->getGross(), 2, '.', ' ')." ".$this->getCurrencySymbol();
+    }
 }
