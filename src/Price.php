@@ -212,6 +212,7 @@ class Price
 
         if ($gross > $this->getGross()) {
             return new Price();
+            return new Price(0, 0, $this->currencySymbol);
         }
 
         $newGross = $this->getGross() - (float) $gross;
