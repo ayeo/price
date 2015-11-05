@@ -40,9 +40,9 @@ Building
 --------
 
 ```php
-$price = new Price(float $nett, float $gross)
-$price = Price::buildByNett(float $nett, integer $tax) - returns Price
-$price = Price::buildByGross(float $gross, integer $tax) - returns Price
+$price = new Price(float $nett, float $gross, 'GBP')
+$price = Price::buildByNett(float $nett, integer $tax, 'USD') - returns Price
+$price = Price::buildByGross(float $gross, integer $tax, 'EUR') - returns Price
 ```
 
 Operations
