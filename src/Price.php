@@ -169,6 +169,10 @@ class Price
         if (is_integer($times) === false) {
             throw new \LogicException('Multiply param must be integer');
         }
+//fixme: do we really need this constraint?
+//        if (is_integer($times) === false) {
+//            throw new \LogicException('Multiply param must be integer');
+//        }
 
         if ($times <= 0) {
             throw new \LogicException('Multiply param must greater than 0');
