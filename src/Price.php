@@ -39,10 +39,19 @@ class Price
     /**
      * @param float $nett
      * @param float $gross
-     * @param null $currencySymbol
+     * @param null|string $currencySymbol
      */
+<<<<<<< HEAD
     public function __construct($nett = 0.00, $gross = 0.00, $currencySymbol)
+=======
+    public function __construct($nett = 0.00, $gross = null, $currencySymbol) //fixme: param order!
+>>>>>>> 2d636564ff35fe466a32b43ec3055ca8b60cbb8d
     {
+        if (is_null($gross))
+        {
+            $gross = $nett;
+        }
+
         $this->validateValues($nett, $gross);
 
         $this->currencySymbol = $this->processCurrencySymbol($currencySymbol);
@@ -53,21 +62,23 @@ class Price
     /**
      * @param float $nett
      * @param integer $tax
+     * @param null|string $currencySymbol
      * @return Price
      */
-    public static function buildByNett($nett, $tax)
+    public static function buildByNett($nett, $tax, $currencySymbol = null)
     {
-        return new Price($nett, $nett * (100 + Price::processTax($tax)) / 100);
+        return new Price($nett, $nett * (100 + Price::processTax($tax)) / 100, $currencySymbol);
     }
 
     /**
      * @param float $gross
      * @param integer $tax
+     * @param null|string $currencySymbol
      * @return Price
      */
-    public static function buildByGross($gross, $tax)
+    public static function buildByGross($gross, $tax, $currencySymbol = null)
     {
-        return new Price(Price::calculateNett($gross, Price::processTax($tax)), $gross);
+        return new Price(Price::calculateNett($gross, Price::processTax($tax)), $gross, $currencySymbol);
     }
 
     /**
@@ -161,12 +172,16 @@ class Price
     }
 
     /**
-     * @param integer $times
+     * @param float $times
      * @return Price
      */
     public function multiply($times)
     {
+<<<<<<< HEAD
 //fixme: do we really need this constraint?
+=======
+        //fixme: numeric
+>>>>>>> 2d636564ff35fe466a32b43ec3055ca8b60cbb8d
 //        if (is_integer($times) === false) {
 //            throw new \LogicException('Multiply param must be integer');
 //        }
@@ -203,7 +218,11 @@ class Price
     }
 
     /**
+<<<<<<< HEAD
      * todo: currency validation
+=======
+     * //fixme: what about currency validation
+>>>>>>> 2d636564ff35fe466a32b43ec3055ca8b60cbb8d
      * @param float $gross
      * @return Price
      */
@@ -212,7 +231,11 @@ class Price
         $this->validateValue($gross);
 
         if ($gross > $this->getGross()) {
+<<<<<<< HEAD
             return new Price(0, 0, $this->currencySymbol);
+=======
+            return new Price(0, 0, $this->getCurrencySymbol());
+>>>>>>> 2d636564ff35fe466a32b43ec3055ca8b60cbb8d
         }
 
         $newGross = $this->getGross() - (float) $gross;
@@ -267,7 +290,7 @@ class Price
     }
 
     /**
-     * @param $gross
+     * @param double $gross
      */
     private function validateValue($gross)
     {
@@ -347,9 +370,16 @@ class Price
         }
     }
 
+<<<<<<< HEAD
 
     public function __toString()
     {
         return number_format($this->getGross(), 2, '.', ' ')." ".$this->getCurrencySymbol();
+=======
+    //default format, use own formatting for more custom purposes
+    public function __toString()
+    {
+        return sprintf('%s %s', $this->getGross(), $this->getCurrencySymbol());
+>>>>>>> 2d636564ff35fe466a32b43ec3055ca8b60cbb8d
     }
 }
