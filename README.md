@@ -10,29 +10,6 @@ Simple DDD price model. The goal is to make model usage as easy as possible. Cre
 easy and dont require any additional objects. Object acts as Value Object - is immutable and 
 self-validating. It is designed to be side effect free.
 
-Immutable
-=========
-
-Operations creates new instances
-
-```php
-$A = new Price(100.00, 120.00, 'USD');
-$B = new Price(10.00, 12.00, 'USD');
-
-$sum = $A->add($B);
-$sum->getGross(); //returns 132.00
-$A->getGross(); //returns 120.00
-$B->getGross(); //returns 12.00
-```
-
-Constraints
-===========
-
-- Nett and gross must be positive
-- Gross must not be lower than nett
-- Tax must be integer
-- Currency symbol is optional but if appears must follow iso 4217 (3 uppercase chars
-
 API
 ===
 
@@ -57,6 +34,21 @@ $priceA->addGross(float $value) - returns Price
 $priceA->subtractGross(float $value) - returns Price
 ```
 
+Immutable
+=========
+
+Operations creates new instances
+
+```php
+$A = new Price(100.00, 120.00, 'USD');
+$B = new Price(10.00, 12.00, 'USD');
+
+$sum = $A->add($B);
+$sum->getGross(); //returns 132.00
+$A->getGross(); //returns 120.00
+$B->getGross(); //returns 12.00
+```
+
 Comparing
 ---------
 
@@ -65,6 +57,14 @@ $priceA->isEqual(Price $priceB) - returns bool
 $priceA->isLower(Price $priceB) - returns bool
 $priceA->isGreater(Price $priceB) - returns bool
 ```
+
+Constraints
+===========
+
+- Nett and gross must be positive
+- Gross must not be lower than nett
+- Tax must be integer
+- Currency symbol is optional but if appears must follow iso 4217 (3 uppercase chars)
 
 Todo
 ====
