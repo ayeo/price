@@ -41,7 +41,7 @@ class Price
      * @param float $gross
      * @param null|string $currencySymbol
      */
-    public function __construct($nett = 0.00, $gross = null, $currencySymbol = null)
+    public function __construct($nett = 0.00, $gross = null, $currencySymbol) //fixme: param order!
     {
         if (is_null($gross))
         {
@@ -58,21 +58,23 @@ class Price
     /**
      * @param float $nett
      * @param integer $tax
+     * @param null|string $currencySymbol
      * @return Price
      */
-    public static function buildByNett($nett, $tax)
+    public static function buildByNett($nett, $tax, $currencySymbol = null)
     {
-        return new Price($nett, $nett * (100 + Price::processTax($tax)) / 100);
+        return new Price($nett, $nett * (100 + Price::processTax($tax)) / 100, $currencySymbol);
     }
 
     /**
      * @param float $gross
      * @param integer $tax
+     * @param null|string $currencySymbol
      * @return Price
      */
-    public static function buildByGross($gross, $tax)
+    public static function buildByGross($gross, $tax, $currencySymbol = null)
     {
-        return new Price(Price::calculateNett($gross, Price::processTax($tax)), $gross);
+        return new Price(Price::calculateNett($gross, Price::processTax($tax)), $gross, $currencySymbol);
     }
 
     /**
@@ -208,6 +210,7 @@ class Price
     }
 
     /**
+     * //fixme: what about currency validation
      * @param float $gross
      * @return Price
      */
@@ -216,7 +219,7 @@ class Price
         $this->validateValue($gross);
 
         if ($gross > $this->getGross()) {
-            return new Price();
+            return new Price(0, 0, $this->getCurrencySymbol());
         }
 
         $newGross = $this->getGross() - (float) $gross;
@@ -349,5 +352,11 @@ class Price
                 throw new \LogicException($message);
             }
         }
+    }
+
+    //default format, use own formatting for more custom purposes
+    public function __toString()
+    {
+        return sprintf('%s %s', $this->getGross(), $this->getCurrencySymbol());
     }
 }
