@@ -289,30 +289,30 @@ class PriceTest extends \PHPUnit_Framework_TestCase
      */
     public function testBuildByNettUsingNonIntegerLikeStringTax()
     {
-        Price::buildByNett(100.00, "2.02");
+        Price::buildByNett(100.00, "2.02", 'USD');
     }
 
     public function testBuildByNettUsingIntegerTax()
     {
-        $price = Price::buildByNett(100.00, 23);
+        $price = Price::buildByNett(100.00, 23, 'GBP');
         $this->assertEquals(123.00, $price->getGross());
     }
 
     public function testBuildByNettUsingIntegerLikeTax()
     {
-        $price = Price::buildByNett(100.00, 23.00);
+        $price = Price::buildByNett(100.00, 23.00, 'PLN');
         $this->assertEquals(123.00, $price->getGross());
     }
 
     public function testBuildByNettUsingIntegerLikStringTax()
     {
-        $price = Price::buildByNett(100.00, "23.00");
+        $price = Price::buildByNett(100.00, "23.00", 'EUR');
         $this->assertEquals(123.00, $price->getGross());
     }
 
     public function testBuildByGross()
     {
-        $price = Price::buildByGross(123.00, 23);
+        $price = Price::buildByGross(123.00, 23, 'USD');
         $this->assertEquals(100.00, $price->getNett());
     }
 
