@@ -63,7 +63,7 @@ class Price
      * @param $currencySymbol
      * @return Price
      */
-    public function build($value, $currencySymbol)
+    public static function build($value, $currencySymbol)
     {
         return new Price($value, $value, $currencySymbol);
     }
