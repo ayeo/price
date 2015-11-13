@@ -205,6 +205,10 @@ class Price
         return new Price($nett, $gross, $this->getCurrencySymbol());
     }
 
+    /**
+     * @param float $times
+     * @return Price
+     */
     public function divide($times)
     {
         if ($times <= 0) {
@@ -227,8 +231,10 @@ class Price
     }
 
     /**
-     *  //fixme: what about currency validation
-     * @param float $gross
+     * Allow to subtract from gross value without knowing price tax rate
+     *
+     * @param $gross
+     * @param $currencySymbol
      * @return Price
      */
     public function subtractGross($gross, $currencySymbol)
