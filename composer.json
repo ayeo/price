@@ -1,6 +1,5 @@
 {
   "name": "ayeo/price",
-  "version": "1.0.0",
   "description": "Simple price model",
   "keywords": [
     "price",
@@ -26,11 +25,6 @@
     "psr-4": {
       "Ayeo\\Price\\": "src//",
       "Ayeo\\Price\\Test\\": "tests//"
-    }
-  },
-  "extra": {
-    "branch-alias": {
-      "dev-master": "1.0.x-dev"
     }
   }
 }
