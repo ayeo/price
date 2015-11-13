@@ -6,14 +6,13 @@ use LogicException;
 
 class PriceTest extends \PHPUnit_Framework_TestCase
 {
-
     /**
      * @dataProvider testCreatingDataProvider
      */
 	public function testCreating($nett, $gross, $tax)
 	{
 		$price = new Price($nett, $gross, 'USD');
-        $this->assertEquals($tax, $price->getTax());
+        $this->assertEquals($tax, $price->getTaxValue());
 	}
 
     public function testCreatingDataProvider()
@@ -61,8 +60,8 @@ class PriceTest extends \PHPUnit_Framework_TestCase
 		$this->assertEquals($expectedGross, $A->add($B)->getGross());
 		$this->assertEquals($expectedGross, $B->add($A)->getGross());
 
-		$this->assertEquals($tax, $B->add($A)->getTax());
-		$this->assertEquals($tax, $A->add($B)->getTax());
+		$this->assertEquals($tax, $B->add($A)->getTaxValue());
+		$this->assertEquals($tax, $A->add($B)->getTaxValue());
 
 		$this->assertEquals($nettA, $A->getNett(), '', 0.01);
 		$this->assertEquals($nettB, $B->getNett(), '', 0.01);
@@ -123,7 +122,7 @@ class PriceTest extends \PHPUnit_Framework_TestCase
     public function testNettSameAsGross()
     {
         $price = new Price(100.00, 100.00, 'USD');
-        $this->assertEquals(0, $price->getTax());
+        $this->assertEquals(0, $price->getTaxValue());
     }
 
     /**
@@ -142,7 +141,7 @@ class PriceTest extends \PHPUnit_Framework_TestCase
 
         $this->assertEquals(0.00, $newPrice->getGross());
         $this->assertEquals(0.00, $newPrice->getNett());
-        $this->assertEquals(0, $newPrice->getTax());
+        $this->assertEquals(0, $newPrice->getTaxValue());
     }
 
     public function testSubstractingGraterPrice()
@@ -153,7 +152,7 @@ class PriceTest extends \PHPUnit_Framework_TestCase
         $result = $smaller->subtract($bigger);
         $this->assertEquals(0.00, $result->getGross());
         $this->assertEquals(0.00, $result->getNett());
-        $this->assertEquals(0.00, $result->getTax());
+        $this->assertEquals(0.00, $result->getTaxValue());
 
     }
 
@@ -169,7 +168,7 @@ class PriceTest extends \PHPUnit_Framework_TestCase
         {
             $this->assertTrue($A->isEqual($B));
             $this->assertTrue($B->isEqual($A));
-            $this->assertEquals($A->getTax(), $B->getTax());
+            $this->assertEquals($A->getTaxValue(), $B->getTaxValue());
         }
         else
         {
@@ -189,7 +188,7 @@ class PriceTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @expectedException           LogicException
-     * @expectedExceptionMessage    Nett must be positive
+     * @expectedExceptionMessage    Money value must be positive
      */
     public function testNegativeNett()
     {
@@ -198,7 +197,7 @@ class PriceTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @expectedException           LogicException
-     * @expectedExceptionMessage    Gross must be positive
+     * @expectedExceptionMessage    Money value must be positive
      */
     public function testNegativeNettAndGross()
     {
@@ -215,7 +214,7 @@ class PriceTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @expectedException           LogicException
-     * @expectedExceptionMessage    Value must be greater than zero
+     * @expectedExceptionMessage    Money value must be positive
      */
     public function testSubtractNegativeGross()
     {
@@ -224,8 +223,7 @@ class PriceTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException           LogicException
-     * @expectedExceptionMessage    Value must be greater than zero
+     * Allow to subtract 0
      */
     public function testSubtractZeroGross()
     {
@@ -235,7 +233,7 @@ class PriceTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @expectedException           LogicException
-     * @expectedExceptionMessage    Value must be numeric
+     * @expectedExceptionMessage    Money value must be numeric
      */
     public function testSubtractString()
     {
@@ -260,7 +258,7 @@ class PriceTest extends \PHPUnit_Framework_TestCase
 
         $this->assertEquals(246.00, $result->getGross());
         $this->assertEquals(200.00, $result->getNett());
-        $this->assertEquals(23, $result->getTax());
+        $this->assertEquals(23, $result->getTaxValue());
         $this->assertEquals('USD', $result->getCurrencySymbol());
 
     }

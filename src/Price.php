@@ -7,34 +7,19 @@ namespace Ayeo\Price;
 class Price
 {
     /**
-     * todo: Add map symbol => precision
-     * There exists currencies with different precision
-     * but those are extremely uncommon
-     *
-     * Full list:
-     * https://pl.wikipedia.org/wiki/Jen
-     * https://pl.wikipedia.org/wiki/Funt_cypryjski
-     * https://pl.wikipedia.org/wiki/Dinar_iracki
-     * https://pl.wikipedia.org/wiki/Dinar_jordański
-     * https://pl.wikipedia.org/wiki/Dinar_kuwejcki
-     * https://pl.wikipedia.org/wiki/Dinar_Bahrajnu
-     */
-    const PRECISION = 2;
-
-    /**
-     * @var float
+     * @var Money
      */
 	private $nett;
 
     /**
-     * @var float
+     * @var Money
      */
 	private $gross;
 
     /**
-     * @var string ISO 4217 (3 uppercase chars)
+     * @var Currency
      */
-	private $currencySymbol;
+	private $currency;
 
     /**
      * @param float $nett
@@ -43,11 +28,14 @@ class Price
      */
     public function __construct($nett = 0.00, $gross = 0.00, $currencySymbol)
     {
-        $this->validateValues($nett, $gross);
+        $this->currency = new Currency($currencySymbol);
+        $this->nett = new Money($nett);
+        $this->gross = new Money($gross);
 
-        $this->currencySymbol = $this->processCurrencySymbol($currencySymbol);
-        $this->nett = $nett;
-        $this->gross = $gross;
+        if ($this->nett->isGreaterThan($this->gross))
+        {
+            throw new \LogicException('Nett must not be greater than gross');
+        }
     }
 
     /**
@@ -79,24 +67,28 @@ class Price
 
     /**
      * @param float $nett
-     * @param integer $tax
-     * @param null|string $currencySymbol
+     * @param integer $taxValue
+     * @param string $currencySymbol
      * @return Price
      */
-    public static function buildByNett($nett, $tax, $currencySymbol = null)
+    public static function buildByNett($nett, $taxValue, $currencySymbol = null)
     {
-        return new Price($nett, $nett * (100 + Price::processTax($tax)) / 100, $currencySymbol);
+        $tax = new Tax($taxValue);
+
+        return new Price($nett, $tax->calculateGross($nett), $currencySymbol);
     }
 
     /**
      * @param float $gross
-     * @param integer $tax
-     * @param null|string $currencySymbol
+     * @param integer $taxValue
+     * @param string $currencySymbol
      * @return Price
      */
-    public static function buildByGross($gross, $tax, $currencySymbol)
+    public static function buildByGross($gross, $taxValue, $currencySymbol)
     {
-        return new Price(Price::calculateNett($gross, Price::processTax($tax)), $gross, $currencySymbol);
+        $tax = new Tax($taxValue);
+
+        return new Price($tax->calculateNett($gross), $gross, $currencySymbol);
     }
 
     /**
@@ -104,7 +96,7 @@ class Price
      */
     public function getNett()
     {
-        return round($this->nett, Price::PRECISION);
+        return round($this->nett->getValue(), $this->currency->getPrecision());
     }
 
     /**
@@ -112,19 +104,23 @@ class Price
      */
     public function getGross()
     {
-        return round($this->gross, Price::PRECISION);
+        return round($this->gross->getValue(), $this->currency->getPrecision());
+    }
+
+    /**
+     * @return Tax;
+     */
+    private function getTax()
+    {
+        return Tax::build($this->getNett(), $this->getGross());
     }
 
     /**
      * @return int
      */
-    public function getTax()
+    public function getTaxValue()
     {
-        if ($this->nett > 0) {
-            return (int) round($this->gross / $this->nett * 100 - 100, 0);
-        }
-
-        return 0;
+        return $this->getTax()->getValue();
     }
 
     /**
@@ -163,12 +159,12 @@ class Price
      */
     public function add(Price $priceToAdd)
     {
-        $this->checkCurrencies($this->getCurrencySymbol(), $priceToAdd->getCurrencySymbol());
+        $this->checkCurrencies($this->getCurrency(), $priceToAdd->getCurrency());
 
         $newGross = $this->getGross() + $priceToAdd->getGross();
         $newNett = $this->getNett() + $priceToAdd->getNett();
 
-        return new Price($newNett, $newGross, $this->currencySymbol);
+        return new Price($newNett, $newGross, $this->getCurrencySymbol());
     }
 
     /**
@@ -177,13 +173,13 @@ class Price
      */
     public function subtract(Price $priceToSubtract)
     {
-        $this->checkCurrencies($this->getCurrencySymbol(), $priceToSubtract->getCurrencySymbol());
+        $this->checkCurrencies($this->getCurrency(), $priceToSubtract->getCurrency());
 
         if ($this->isGreaterThan($priceToSubtract)) {
             $newGross = $this->getGross() - $priceToSubtract->getGross();
             $newNett = $this->getNett() - $priceToSubtract->getNett();
 
-            return new Price($newNett, $newGross, $this->currencySymbol);
+            return new Price($newNett, $newGross, $this->getCurrencySymbol());
         }
 
         return Price::buildEmpty($this->getCurrencySymbol());
@@ -223,153 +219,69 @@ class Price
 
     /**
      * Returns 3 chars iso 4217 symbol
+     *
      * @return string
      */
     public function getCurrencySymbol()
     {
-        return $this->currencySymbol;
+        return (string) $this->currency;
+    }
+
+    /**
+     * @return Currency
+     */
+    public function getCurrency()
+    {
+        return $this->currency;
     }
 
     /**
      * Allow to subtract from gross value without knowing price tax rate
      *
-     * @param $gross
+     * @param $grossValue
      * @param $currencySymbol
      * @return Price
      */
-    public function subtractGross($gross, $currencySymbol)
+    public function subtractGross($grossValue, $currencySymbol)
     {
-        //todo: validate currency symbol
-        $this->checkCurrencies($this->getCurrencySymbol(), $currencySymbol);
-        $this->validateValue($gross);
+        $gross = new Money($grossValue);
+        $this->checkCurrencies($this->getCurrency(), new Currency($currencySymbol));
 
-        if ($gross > $this->getGross()) {
+
+        if ($gross->getValue() > $this->getGross()) {
             return new Price(0, 0, $this->getCurrencySymbol());
         }
 
-        $newGross = $this->getGross() - (float) $gross;
-        $newNett = $this->calculateNett($newGross, $this->getTax());
-
-        return new Price($newNett, $newGross, $this->currencySymbol);
+        $newGross = $this->getGross() - $gross->getValue();
+        return new Price($this->getTax()->calculateNett($newGross), $newGross, $this->getCurrencySymbol());
     }
 
     /**
-     * @param float $gross
+     * @param float $grossValue
      * @return Price
      */
-    public function addGross($gross)
+    public function addGross($grossValue) //todo:add currency
     {
-        $this->validateValue($gross);
+        $gross = new Money($grossValue);
 
-        $newGross = $this->getGross() + (float) $gross;
-        $newNett = $this->calculateNett($newGross, $this->getTax());
-
-        return new Price($newNett, $newGross, $this->currencySymbol);
+        $newGross = $this->getGross() + $gross->getValue();
+        return new Price($this->getTax()->calculateNett($newGross), $newGross, $this->getCurrencySymbol());
     }
 
     /**
-     * @param $tax
-     * @return int
+     * @param Currency $currencyA
+     * @param Currency $currencyB
      */
-    private static function processTax($tax)
+    private function checkCurrencies(Currency $currencyA, Currency $currencyB)
     {
-        if (is_numeric($tax) === false) {
-            throw new \LogicException('Tax percent must be integer');
-        }
-
-        if ((float) $tax != round($tax, 0)) {
-            throw new \LogicException('Tax percent must be integer');
-        }
-
-        if ($tax < 0) {
-            throw new \LogicException('Tax percent must positive');
-        }
-
-        return (int) $tax;
-    }
-
-    /**
-     * @param float $gross
-     * @param int $tax
-     * @return float
-     */
-    private static function calculateNett($gross, $tax)
-    {
-        return $gross / (100 + $tax) * 100;
-    }
-
-    /**
-     * @param double $gross
-     */
-    private function validateValue($gross)
-    {
-        if (is_numeric($gross) === false) {
-            throw new \LogicException('Value must be numeric');
-        }
-
-        if ($gross <= 0) {
-            throw new \LogicException('Value must be greater than zero');
-        }
-    }
-
-    /**
-     * @param string $currencyA
-     * @param string $currencyB
-     */
-    private function checkCurrencies($currencyA, $currencyB)
-    {
-        if ($currencyA !== $currencyB) {
+        if ($currencyA->isEqual($currencyB) === false) {
             $message = sprintf(
                 'Can not operate on different currencies ("%s" and "%s")',
-                $currencyA,
-                $currencyB
+                (string) $currencyA,
+                (string) $currencyB
             );
 
             throw new \LogicException($message);
-        }
-    }
-
-    /**
-     * @param float $nett
-     * @param float $gross
-     */
-    private function validateValues($nett, $gross)
-    {
-        if (is_numeric($nett) === false) {
-            throw new \LogicException('Nett must be numeric');
-        }
-
-        if (is_numeric($gross) === false) {
-            throw new \LogicException('Gross must be numeric');
-        }
-
-        if ($nett < 0) {
-            throw new \LogicException('Nett must be positive');
-        }
-
-        if ($gross < 0) {
-            throw new \LogicException('Gross must be positive');
-        }
-
-        //floating point calculations precision problem here
-        if (round($nett, 6) > round($gross, 6)) {
-            throw new \LogicException('Nett must not be greater than gross');
-        }
-    }
-
-    /**
-     * @param string $currencySymbol ISO 4217 (3 uppercase chars)
-     * @return string
-     */
-    private function processCurrencySymbol($currencySymbol)
-    {
-        if (is_null($currencySymbol) === false) {
-            if (preg_match('#^[A-Z]{3}$#', $currencySymbol)) {
-                return strtoupper($currencySymbol);
-            } else {
-                $message = sprintf('Invalid currency symbol: "%s"', $currencySymbol);
-                throw new \LogicException($message);
-            }
         }
     }
 
