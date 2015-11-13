@@ -32,22 +32,17 @@ class Price
 	private $gross;
 
     /**
-     * @var null|string ISO 4217 (3 uppercase chars)
+     * @var string ISO 4217 (3 uppercase chars)
      */
 	private $currencySymbol;
 
     /**
      * @param float $nett
      * @param float $gross
-     * @param null|string $currencySymbol
+     * @param string $currencySymbol
      */
-    public function __construct($nett = 0.00, $gross = null, $currencySymbol) //fixme: param order!
+    public function __construct($nett = 0.00, $gross = 0.00, $currencySymbol)
     {
-        if (is_null($gross))
-        {
-            $gross = $nett;
-        }
-
         $this->validateValues($nett, $gross);
 
         $this->currencySymbol = $this->processCurrencySymbol($currencySymbol);
@@ -168,7 +163,7 @@ class Price
      */
     public function add(Price $priceToAdd)
     {
-        $this->checkCurrencies($this, $priceToAdd);
+        $this->checkCurrencies($this->getCurrencySymbol(), $priceToAdd->getCurrencySymbol());
 
         $newGross = $this->getGross() + $priceToAdd->getGross();
         $newNett = $this->getNett() + $priceToAdd->getNett();
@@ -182,7 +177,7 @@ class Price
      */
     public function subtract(Price $priceToSubtract)
     {
-        $this->checkCurrencies($this, $priceToSubtract);
+        $this->checkCurrencies($this->getCurrencySymbol(), $priceToSubtract->getCurrencySymbol());
 
         if ($this->isGreaterThan($priceToSubtract)) {
             $newGross = $this->getGross() - $priceToSubtract->getGross();
@@ -200,12 +195,6 @@ class Price
      */
     public function multiply($times)
     {
-        //fixme: do we really need this constraint?
-        //fixme: numeric
-//        if (is_integer($times) === false) {
-//            throw new \LogicException('Multiply param must be integer');
-//        }
-
         if ($times <= 0) {
             throw new \LogicException('Multiply param must greater than 0');
         }
@@ -229,33 +218,23 @@ class Price
     }
 
     /**
-     * @return bool
-     */
-    public function hasCurrency()
-    {
-        return isset($this->currencySymbol);
-    }
-
-    /**
      * Returns 3 chars iso 4217 symbol
      * @return string
      */
     public function getCurrencySymbol()
     {
-        if (is_null($this->currencySymbol)) {
-            throw new \RuntimeException('Currency symbol is not set');
-        }
-
         return $this->currencySymbol;
     }
 
     /**
-     * //fixme: what about currency validation
+     *  //fixme: what about currency validation
      * @param float $gross
      * @return Price
      */
-    public function subtractGross($gross)
+    public function subtractGross($gross, $currencySymbol)
     {
+        //todo: validate currency symbol
+        $this->checkCurrencies($this->getCurrencySymbol(), $currencySymbol);
         $this->validateValue($gross);
 
         if ($gross > $this->getGross()) {
@@ -328,23 +307,16 @@ class Price
     }
 
     /**
-     * @param Price $A
-     * @param Price $B
+     * @param string $currencyA
+     * @param string $currencyB
      */
-    private function checkCurrencies(Price $A, Price $B)
+    private function checkCurrencies($currencyA, $currencyB)
     {
-        if ($A->hasCurrency() === false && $B->hasCurrency() === false) {
-            return;
-        }
-
-        //fixme: one of currencies may still not been set here
-        //we get exception anyway, should we translate the exception here?
-
-        if ($A->getCurrencySymbol() !== $B->getCurrencySymbol()) {
+        if ($currencyA !== $currencyB) {
             $message = sprintf(
-                'Can not do operate on different currencies ("%s" and "%s")',
-                $A->getCurrencySymbol(),
-                $B->getCurrencySymbol()
+                'Can not operate on different currencies ("%s" and "%s")',
+                $currencyA,
+                $currencyB
             );
 
             throw new \LogicException($message);
@@ -380,10 +352,10 @@ class Price
     }
 
     /**
-     * @param null|string $currencySymbol ISO 4217 (3 uppercase chars)
+     * @param string $currencySymbol ISO 4217 (3 uppercase chars)
      * @return string
      */
-    private function processCurrencySymbol($currencySymbol = null)
+    private function processCurrencySymbol($currencySymbol)
     {
         if (is_null($currencySymbol) === false) {
             if (preg_match('#^[A-Z]{3}$#', $currencySymbol)) {
@@ -395,7 +367,11 @@ class Price
         }
     }
 
-    //default format, use own formatting for more custom purposes
+    /**
+     * Default format. Use own formatting for more custom purposes
+     *
+     * @return string
+     */
     public function __toString()
     {
         return number_format($this->getGross(), 2, '.', ' ')." ".$this->getCurrencySymbol();

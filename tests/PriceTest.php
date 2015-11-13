@@ -102,7 +102,7 @@ class PriceTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @expectedException           LogicException
-     * @expectedExceptionMessage    Can not do operate on different currencies ("USD" and "GBP")
+     * @expectedExceptionMessage    Can not operate on different currencies ("USD" and "GBP")
      */
     public function testAddingDifferentCurrencies()
     {
@@ -138,7 +138,7 @@ class PriceTest extends \PHPUnit_Framework_TestCase
     public function testSubtractGrossBiggerThanPrice()
     {
         $price = new Price(120, 140, 'PLN');
-        $newPrice = $price->subtractGross(150.00);
+        $newPrice = $price->subtractGross(150.00, 'PLN');
 
         $this->assertEquals(0.00, $newPrice->getGross());
         $this->assertEquals(0.00, $newPrice->getNett());
@@ -208,7 +208,7 @@ class PriceTest extends \PHPUnit_Framework_TestCase
     public function  testSubtractGross()
     {
         $price = new Price(13.34, 15.53, 'USD');
-        $result = $price->subtractGross(10.00);
+        $result = $price->subtractGross(10.00, 'USD');
 
         $this->assertEquals(5.53, $result->getGross());
     }
@@ -220,7 +220,7 @@ class PriceTest extends \PHPUnit_Framework_TestCase
     public function testSubtractNegativeGross()
     {
         $price = new Price(13.34, 15.53, 'USD');
-        $price->subtractGross(-10.00);
+        $price->subtractGross(-10.00, 'USD');
     }
 
     /**
@@ -230,7 +230,7 @@ class PriceTest extends \PHPUnit_Framework_TestCase
     public function testSubtractZeroGross()
     {
         $price = new Price(13.34, 15.53, 'USD');
-        $price->subtractGross(0.00);
+        $price->subtractGross(0.00, 'USD');
     }
 
     /**
@@ -240,7 +240,7 @@ class PriceTest extends \PHPUnit_Framework_TestCase
     public function testSubtractString()
     {
         $price = new Price(13.34, 15.53, 'USD');
-        $price->subtractGross("number");
+        $price->subtractGross("number", 'USD');
     }
 
     public function testAddGross()
@@ -325,4 +325,24 @@ class PriceTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(750.00, $result->getGross());
         $this->assertEquals('PLN', $result->getCurrencySymbol());
     }
+
+    public function testDivide()
+    {
+        $price = Price::buildByGross(233.29, 23, 'PLN');
+        $price = $price->divide(3);
+        $this->assertEquals(77.76, $price->getGross());
+    }
+
+    /**
+     * @expectedException           \LogicException
+     * @expectedExceptionMessage    Can not operate on different currencies ("USD" and "GBP")
+     */
+    public function testAddDifferentCurrencies()
+    {
+        $usd = Price::buildByGross(100.00, 8, 'USD');
+        $eur = Price::buildByGross(100.00, 8, 'GBP');
+        $usd->add($eur);
+    }
+
+    //todo: test float tax
 }
