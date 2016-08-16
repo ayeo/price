@@ -116,11 +116,21 @@ class Price
     }
 
     /**
+     * Returns tax rate not value!!
      * @return int
      */
     public function getTaxValue()
     {
         return $this->getTax()->getValue();
+    }
+
+    /**
+     * Returns tax value!
+     * @return float
+     */
+    public function getTaxPrice()
+    {
+        return $this->getGross() - $this->getNett();
     }
 
     /**
@@ -198,6 +208,7 @@ class Price
         $nett = $this->getNett() * $times;
         $gross = $this->getGross() * $times;
 
+//        return Price::buildByNett($nett, $this->getTaxValue(), $this->getCurrencySymbol());
         return new Price($nett, $gross, $this->getCurrencySymbol());
     }
 
