@@ -22,6 +22,16 @@ class Price
 	private $currency;
 
     /**
+     * @deprecated: Constructor will be private within few next releases
+     * It is not possible to calculate correct tax rate for a given nett and gross
+     * Dedicated class will be introduced to allow building price with these data but
+     * acquiring tax value will be prohibited
+     *
+     * Building price is only possible using:
+     * - buildByGross()
+     * - buildByNett()
+     * - buildEmpty()
+     *
      * @param float $nett
      * @param float $gross
      * @param string $currencySymbol
