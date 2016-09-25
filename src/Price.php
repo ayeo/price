@@ -208,10 +208,6 @@ class Price
         $newGross = $this->getGross() + $priceToAdd->getGross();
         $newNett = $this->getNett() + $priceToAdd->getNett();
 
-//        var_dump($this->getTaxValue());
-//        var_dump($priceToAdd->getTaxValue());
-
-
         if (
             $this->hasTaxRate() && $priceToAdd->hasTaxRate() &&
             $this->getTaxValue() == $priceToAdd->getTaxValue()
@@ -237,7 +233,10 @@ class Price
             $newGross = $this->getGross() - $priceToSubtract->getGross();
             $newNett = $this->getNett() - $priceToSubtract->getNett();
 
-            if ($this->getTaxValue() == $priceToSubtract->getTaxValue()) {
+            if ( //duplication (add())
+                $this->hasTaxRate() && $priceToAdd->hasTaxRate() &&
+                $this->getTaxValue() == $priceToAdd->getTaxValue()
+            ) {
                 $tax = $this->getTaxValue();
             } else {
                 $tax = null;
