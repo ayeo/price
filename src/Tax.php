@@ -71,4 +71,11 @@ class Tax
 	{
 		return $gross * 100 / ($this->getValue() + 100);
 	}
+
+	public function validate($nett, $gross)
+    {
+        if (round($gross, 2) !== round($nett * (1 + $this->getValue()/ 100), 2)) {
+            throw new \LogicException("Invalid tax rate");
+        }
+    }
 }

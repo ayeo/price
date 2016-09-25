@@ -22,6 +22,16 @@ class Price
 	private $currency;
 
     /**
+     * @var Tax
+     */
+	private $tax;
+
+    /**
+     * @var bool
+     */
+	private $mixedTax = false;
+
+    /**
      * @deprecated: Constructor will be private within few next releases
      * It is not possible to calculate correct tax rate for a given nett and gross
      * Dedicated class will be introduced to allow building price with these data but
@@ -36,8 +46,10 @@ class Price
      * @param float $gross
      * @param string $currencySymbol
      */
-    public function __construct($nett = 0.00, $gross = 0.00, $currencySymbol)
+    public function __construct($nett = 0.00, $gross = 0.00, $currencySymbol, $tax = null)
     {
+        //var_dump($tax);
+        //todo: check tax
         $this->currency = new Currency($currencySymbol);
         $this->nett = new Money($nett);
         $this->gross = new Money($gross);
@@ -45,6 +57,14 @@ class Price
         if ($this->nett->isGreaterThan($this->gross))
         {
             throw new \LogicException('Nett must not be greater than gross');
+        }
+
+        if (is_null($tax)) {
+            $this->tax = Tax::build($nett, $gross);
+            $this->mixedTax = true;
+        } else {
+            $this->tax = new Tax($tax);
+            $this->tax->validate($nett, $gross);
         }
     }
 
@@ -58,7 +78,7 @@ class Price
      */
     public static function build($value, $currencySymbol)
     {
-        return new Price($value, $value, $currencySymbol);
+        return Price::buildByNett($value, 0, $currencySymbol);
     }
 
     /**
@@ -72,7 +92,7 @@ class Price
      */
     public static function buildEmpty($currencySymbol)
     {
-        return new Price(0, 0, $currencySymbol);
+        return new Price(0, 0, $currencySymbol, 0);
     }
 
     /**
@@ -85,7 +105,7 @@ class Price
     {
         $tax = new Tax($taxValue);
 
-        return new Price($nett, $tax->calculateGross($nett), $currencySymbol);
+        return new Price($nett, $tax->calculateGross($nett), $currencySymbol, $taxValue);
     }
 
     /**
@@ -98,7 +118,7 @@ class Price
     {
         $tax = new Tax($taxValue);
 
-        return new Price($tax->calculateNett($gross), $gross, $currencySymbol);
+        return new Price($tax->calculateNett($gross), $gross, $currencySymbol, $taxValue);
     }
 
     /**
@@ -122,7 +142,7 @@ class Price
      */
     private function getTax()
     {
-        return Tax::build($this->getNett(), $this->getGross());
+        return $this->tax;
     }
 
     /**
@@ -131,6 +151,10 @@ class Price
      */
     public function getTaxValue()
     {
+        if ($this->hasTaxRate() == false) {
+            throw new \LogicException("Tax rate is mixed");
+        }
+
         return $this->getTax()->getValue();
     }
 
@@ -184,7 +208,21 @@ class Price
         $newGross = $this->getGross() + $priceToAdd->getGross();
         $newNett = $this->getNett() + $priceToAdd->getNett();
 
-        return new Price($newNett, $newGross, $this->getCurrencySymbol());
+//        var_dump($this->getTaxValue());
+//        var_dump($priceToAdd->getTaxValue());
+
+
+        if (
+            $this->hasTaxRate() && $priceToAdd->hasTaxRate() &&
+            $this->getTaxValue() == $priceToAdd->getTaxValue()
+        ) {
+            $tax = $this->getTaxValue();
+        } else {
+            $tax = null;
+        }
+
+
+        return new Price($newNett, $newGross, $this->getCurrencySymbol(), $tax);
     }
 
     /**
@@ -199,7 +237,13 @@ class Price
             $newGross = $this->getGross() - $priceToSubtract->getGross();
             $newNett = $this->getNett() - $priceToSubtract->getNett();
 
-            return new Price($newNett, $newGross, $this->getCurrencySymbol());
+            if ($this->getTaxValue() == $priceToSubtract->getTaxValue()) {
+                $tax = $this->getTaxValue();
+            } else {
+                $tax = null;
+            }
+
+            return new Price($newNett, $newGross, $this->getCurrencySymbol(), $tax);
         }
 
         return Price::buildEmpty($this->getCurrencySymbol());
@@ -218,7 +262,6 @@ class Price
         $nett = $this->getNett() * $times;
         $gross = $this->getGross() * $times;
 
-//        return Price::buildByNett($nett, $this->getTaxValue(), $this->getCurrencySymbol());
         return new Price($nett, $gross, $this->getCurrencySymbol());
     }
 
@@ -286,7 +329,7 @@ class Price
         $gross = new Money($grossValue);
 
         $newGross = $this->getGross() + $gross->getValue();
-        return new Price($this->getTax()->calculateNett($newGross), $newGross, $this->getCurrencySymbol());
+        return new Price($this->getTax()->calculateNett($newGross), $newGross, $this->getCurrencySymbol(), $this->tax->getValue());
     }
 
     /**
@@ -314,5 +357,13 @@ class Price
     public function __toString()
     {
         return number_format($this->getGross(), 2, '.', ' ')." ".$this->getCurrencySymbol();
+    }
+
+    /**
+     * @return bool
+     */
+    public function hasTaxRate()
+    {
+        return $this->mixedTax == false;
     }
 }

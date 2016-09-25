@@ -7,13 +7,64 @@ use LogicException;
 class PriceTest extends \PHPUnit_Framework_TestCase
 {
     /**
+     * @expectedException \LogicException
+     */
+    public function testBuildInvalidPrice()
+    {
+        new Price(100.00, 120.00, "PLN", 23);
+    }
+
+    public function testAddingPricesWithSameTax()
+    {
+        $A = Price::buildByNett(100.00, 20, "PLN");
+        $B = Price::buildByNett(200.00, 20, "PLN");
+
+        $result = $A->add($B);
+
+        $this->assertEquals(300.00, $result->getNett());
+        $this->assertEquals(360.00, $result->getGross());
+        $this->assertEquals(20, $result->getTaxValue());
+        //$this->assertEquals(true, $result->hasTaxRate());
+    }
+
+    public function testAddingPricesWithDifferentTax()
+    {
+        $A = Price::buildByNett(100.00, 20, "PLN");
+        $B = Price::buildByNett(200.00, 10, "PLN");
+
+        $result = $A->add($B);
+
+        $this->assertEquals(300.00, $result->getNett());
+        $this->assertEquals(120 + 220, $result->getGross());
+        $this->assertEquals(false, $result->hasTaxRate());
+    }
+
+    /**
      * @dataProvider testCreatingDataProvider
      */
 	public function testCreating($nett, $gross, $tax)
 	{
-		$price = new Price($nett, $gross, 'USD');
+		$price = new Price($nett, $gross, 'USD', $tax);
         $this->assertEquals($tax, $price->getTaxValue());
 	}
+
+    /**
+     * @dataProvider testCreatingDataProvider
+     */
+    public function testBuildingGross($nett, $gross, $tax)
+    {
+        $price = Price::buildByGross($gross, $tax, 'USD');
+        $this->assertEquals(round($nett, 2), $price->getNett());
+    }
+
+    /**
+     * @dataProvider testCreatingDataProvider
+     */
+    public function testBuildingNett($nett, $gross, $tax)
+    {
+        $price = Price::buildByNett($nett, $tax, 'USD');
+        $this->assertEquals(round($gross, 2), $price->getGross());
+    }
 
     public function testCreatingDataProvider()
     {
@@ -37,11 +88,9 @@ class PriceTest extends \PHPUnit_Framework_TestCase
             [109.7561, 135.0020, 23],
             [109.7561, 135.0030, 23],
             [109.7561, 135.0040, 23],
-            [109.7561, 135.0050, 23],
-            [109.7561, 135.0060, 23],
-            [109.7561, 135.0070, 23],
-            [109.7561, 135.0100, 23],
-            [109.7561, 135.5000, 23],
+            [110.16, 135.5000, 23],
+
+            [0.81, 0.8748, 8],
         ];
     }
 
@@ -54,8 +103,8 @@ class PriceTest extends \PHPUnit_Framework_TestCase
 		$nettA = $grossA / (100 + $tax) * 100;
 		$nettB = $grossB / (100 + $tax) * 100;
 
-		$A = new Price($nettA, $grossA, 'USD');
-		$B = new Price($nettB, $grossB, 'USD');
+		$A = new Price($nettA, $grossA, 'USD', $tax);
+		$B = new Price($nettB, $grossB, 'USD', $tax);
 
 		$this->assertEquals($expectedGross, $A->add($B)->getGross());
 		$this->assertEquals($expectedGross, $B->add($A)->getGross());
@@ -121,7 +170,7 @@ class PriceTest extends \PHPUnit_Framework_TestCase
 
     public function testNettSameAsGross()
     {
-        $price = new Price(100.00, 100.00, 'USD');
+        $price = new Price(100.00, 100.00, 'USD', 0);
         $this->assertEquals(0, $price->getTaxValue());
     }
 
@@ -136,23 +185,23 @@ class PriceTest extends \PHPUnit_Framework_TestCase
 
     public function testSubtractGrossBiggerThanPrice()
     {
-        $price = new Price(120, 140, 'PLN');
+        $price = new Price(100, 140, 'PLN', 40);
         $newPrice = $price->subtractGross(150.00, 'PLN');
 
         $this->assertEquals(0.00, $newPrice->getGross());
         $this->assertEquals(0.00, $newPrice->getNett());
-        $this->assertEquals(0, $newPrice->getTaxValue());
+        $this->assertEquals(false, $newPrice->hasTaxRate());
     }
 
     public function testSubstractingGraterPrice()
     {
-        $smaller = new Price(0.59, 0.72, 'EUR');
-        $bigger = new Price(1.12, 1.32, 'EUR');
+        $smaller = new Price(1.00, 1.10, 'EUR', 10);
+        $bigger = new Price(2.00, 2.20, 'EUR', 10);
 
         $result = $smaller->subtract($bigger);
         $this->assertEquals(0.00, $result->getGross());
         $this->assertEquals(0.00, $result->getNett());
-        $this->assertEquals(0.00, $result->getTaxValue());
+        $this->assertEquals(true, $result->hasTaxRate());
 
     }
 
@@ -168,7 +217,6 @@ class PriceTest extends \PHPUnit_Framework_TestCase
         {
             $this->assertTrue($A->isEqual($B));
             $this->assertTrue($B->isEqual($A));
-            $this->assertEquals($A->getTaxValue(), $B->getTaxValue());
         }
         else
         {
