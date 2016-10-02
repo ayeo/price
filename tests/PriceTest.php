@@ -39,6 +39,30 @@ class PriceTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(false, $result->hasTaxRate());
     }
 
+    public function testSimpleSubtractingPrices()
+    {
+        $A = Price::buildByNett(180.00, 23, "PLN");
+        $B = Price::buildByNett(220.00, 23, "PLN");
+
+        $result = $B->subtract($A);
+
+        $this->assertEquals(40.00, $result->getNett());
+        $this->assertEquals(40.00 * 1.23, $result->getGross());
+        $this->assertEquals(true, $result->hasTaxRate());
+    }
+
+    public function testSubtractingPricesWithDifferentTax()
+    {
+        $A = Price::buildByNett(160.00, 20, "PLN");
+        $B = Price::buildByNett(120.00, 10, "PLN");
+
+        $result = $A->subtract($B);
+
+        $this->assertEquals(40.00, $result->getNett());
+        $this->assertEquals(60, $result->getGross());
+        $this->assertEquals(false, $result->hasTaxRate());
+    }
+
     /**
      * @dataProvider testCreatingDataProvider
      */

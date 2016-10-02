@@ -208,17 +208,7 @@ class Price
         $newGross = $this->getGross() + $priceToAdd->getGross();
         $newNett = $this->getNett() + $priceToAdd->getNett();
 
-        if (
-            $this->hasTaxRate() && $priceToAdd->hasTaxRate() &&
-            $this->getTaxValue() == $priceToAdd->getTaxValue()
-        ) {
-            $tax = $this->getTaxValue();
-        } else {
-            $tax = null;
-        }
-
-
-        return new Price($newNett, $newGross, $this->getCurrencySymbol(), $tax);
+        return new Price($newNett, $newGross, $this->getCurrencySymbol(), $this->getTaxForPrices($this, $priceToAdd));
     }
 
     /**
@@ -233,19 +223,30 @@ class Price
             $newGross = $this->getGross() - $priceToSubtract->getGross();
             $newNett = $this->getNett() - $priceToSubtract->getNett();
 
-            if ( //duplication (add())
-                $this->hasTaxRate() && $priceToAdd->hasTaxRate() &&
-                $this->getTaxValue() == $priceToAdd->getTaxValue()
-            ) {
-                $tax = $this->getTaxValue();
-            } else {
-                $tax = null;
-            }
-
-            return new Price($newNett, $newGross, $this->getCurrencySymbol(), $tax);
+            return new Price($newNett, $newGross, $this->getCurrencySymbol(), $this->getTaxForPrices($this, $priceToSubtract));
         }
 
         return Price::buildEmpty($this->getCurrencySymbol());
+    }
+
+    private function getTaxForPrices(Price $A, Price $B)
+    {
+        if ($this->areTaxesIdentical($A, $B)) {
+            return $A->getTaxValue();
+        }
+
+        return null;
+    }
+
+    private function areTaxesIdentical(Price $A, Price $B)
+    {
+        $bothHasTaxSet = $A->hasTaxRate() && $B->hasTaxRate();
+
+        if ($bothHasTaxSet === false) {
+            return false;
+        }
+
+        return $A->getTaxValue() === $B->getTaxValue();
     }
 
     /**
