@@ -32,24 +32,12 @@ class Price
 	private $mixedTax = false;
 
     /**
-     * @deprecated: Constructor will be private within few next releases
-     * It is not possible to calculate correct tax rate for a given nett and gross
-     * Dedicated class will be introduced to allow building price with these data but
-     * acquiring tax value will be prohibited
-     *
-     * Building price is only possible using:
-     * - buildByGross()
-     * - buildByNett()
-     * - buildEmpty()
-     *
      * @param float $nett
      * @param float $gross
      * @param string $currencySymbol
      */
-    public function __construct($nett = 0.00, $gross = 0.00, $currencySymbol, $tax = null)
+    public function __construct($nett = 0.00, $gross = 0.00, $currencySymbol, $taxRate = null)
     {
-        //var_dump($tax);
-        //todo: check tax
         $this->currency = new Currency($currencySymbol);
         $this->nett = new Money($nett);
         $this->gross = new Money($gross);
@@ -59,11 +47,11 @@ class Price
             throw new \LogicException('Nett must not be greater than gross');
         }
 
-        if (is_null($tax)) {
+        if (is_null($taxRate)) {
             $this->tax = Tax::build($nett, $gross);
             $this->mixedTax = true;
         } else {
-            $this->tax = new Tax($tax);
+            $this->tax = new Tax($taxRate);
             $this->tax->validate($nett, $gross);
         }
     }
@@ -146,6 +134,15 @@ class Price
     }
 
     /**
+     * @return int
+     */
+    public function getTaxRate()
+    {
+        return $this->getTaxValue();
+    }
+
+    /**
+     * @deprecated Use getTaxRate()
      * Returns tax rate not value!!
      * @return int
      */
@@ -159,6 +156,15 @@ class Price
     }
 
     /**
+     * @return float
+     */
+    public function getTaxDiff()
+    {
+        return $this->getGross() - $this->getNett();
+    }
+
+    /**
+     * @deprecated: use getTaxDiff() instead
      * Returns tax value!
      * @return float
      */

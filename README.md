@@ -1,5 +1,4 @@
 [![Build Status](http://img.shields.io/travis/ayeo/price.svg?style=flat-square)](https://travis-ci.org/ayeo/price)
-[![Scrutinizer Code Quality](http://img.shields.io/scrutinizer/g/ayeo/price.svg?style=flat-square)](https://scrutinizer-ci.com/g/ayeo/price/build-status/master)
 [![Software License](https://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat-square)](license.md)
 [![Packagist Version](https://img.shields.io/packagist/v/ayeo/price.svg?style=flat-square)](https://packagist.org/packages/ayeo/price)
 [![Code Coverage](https://img.shields.io/scrutinizer/coverage/g/ayeo/price/master.svg?style=flat-square)](https://scrutinizer-ci.com/g/ayeo/price/?branch=master)
@@ -17,9 +16,29 @@ Building
 --------
 
 ```php
-$price = new Price(float $nett, float $gross, 'GBP')
-$price = Price::buildByNett(float $nett, integer $tax, 'USD') - returns Price
-$price = Price::buildByGross(float $gross, integer $tax, 'EUR') - returns Price
+$price = new Price(float $nett, float $gross, "GBP")
+$price = Price::buildByNett(float $nett, integer $tax, "USD") - returns Price
+$price = Price::buildByGross(float $gross, integer $tax, "EUR") - returns Price
+```
+
+Tax
+---
+
+Tax aspects may be a bit confusing at first glance. You may need to build price providing tax rate:
+```php
+$price = Price::buildByNett(100.00, 8, "USD"):
+```
+In this case tax rate is known and it is equal to 8%. When you adding or subtracting prices with same tax rate the result price will come up with same rate. 
+But if you operate with different rates result price has unknown tax rate. 
+```php
+$A = Price::buildByNett(100.00, 8, "USD"):
+$B = Price::buildByNett(10.00, 11, "USD"):
+$C = $A->add($B);
+$C->hasTaxRate(); //returns false
+```
+You can still get tax percentage value (but it is not the rate!) using:
+```php
+$C->getTax()->getValue(); 
 ```
 
 Operations

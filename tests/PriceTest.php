@@ -414,5 +414,15 @@ class PriceTest extends \PHPUnit_Framework_TestCase
         $usd->add($eur);
     }
 
-    //todo: test float tax
+    public function testInvalidTaxRate()
+    {
+        $this->setExpectedException("\\LogicException");
+        $price = new Price(100.00, 120.00, "USD", 10);
+    }
+
+    public function testFloatTaxRate()
+    {
+        $this->setExpectedException("\\LogicException");
+        $price = new Price(100.00, 120.00, "USD", 19.99);
+    }
 }
