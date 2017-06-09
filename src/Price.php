@@ -197,10 +197,11 @@ class Price
      */
     public function isEqual(Price $price)
     {
+	$isCurrencyEqual = $this->getCurrency()->isEqual($price->getCurrency());
         $isGrossEqual = $this->getGross() === $price->getGross();
         $isNettEqual = $this->getNett() === $price->getNett();
 
-        return ($isGrossEqual  && $isNettEqual);
+        return ($isGrossEqual  && $isNettEqual && $isCurrencyEqual);
     }
 
     /**
