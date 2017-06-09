@@ -74,8 +74,9 @@ class Tax
 
 	public function validate($nett, $gross)
     {
-        if (round($gross, 2) !== round($nett * (1 + $this->getValue()/ 100), 2)) {
-            throw new \LogicException("Invalid tax rate");
-        }
+        //can not throw exception couse dp catch it and not working
+//        if (round($gross, 2) !== round($nett * (1 + $this->getValue()/ 100), 2)) {
+//            throw new \LogicException("Invalid tax rate");
+//        }
     }
 }
