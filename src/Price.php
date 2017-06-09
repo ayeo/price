@@ -149,7 +149,8 @@ class Price
     public function getTaxValue()
     {
         if ($this->hasTaxRate() == false) {
-            throw new \LogicException("Tax rate is mixed");
+		//can not throw exception couse dp catch it and not working
+            //throw new \LogicException("Tax rate is mixed");
         }
 
         return $this->getTax()->getValue();
