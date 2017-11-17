@@ -11,7 +11,7 @@ class PriceTest extends \PHPUnit_Framework_TestCase
      */
     public function testBuildInvalidPrice()
     {
-        new Price(100.00, 120.00, "PLN", 23);
+        new Price(120.00, 100.00, "PLN", 23);
     }
 
     public function testAddingPricesWithSameTax()
@@ -396,11 +396,36 @@ class PriceTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('PLN', $result->getCurrencySymbol());
     }
 
+    public function testMultiplyWithSpecificPrice()
+    {
+        $price = new Price(1.36, 1.67, 'PLN', 23);
+        $result = $price->multiply(1.41);
+
+        $result = clone $result;
+
+        $this->assertEquals(1.92, $result->getNett());
+        $this->assertEquals(2.35, $result->getGross());
+        $this->assertEquals('PLN', $result->getCurrencySymbol());
+        $this->assertEquals(23, $result->getTaxRate());
+    }
+
     public function testDivide()
     {
         $price = Price::buildByGross(233.29, 23, 'PLN');
         $price = $price->divide(3);
+        $this->assertEquals(63.22, $price->getNett());
         $this->assertEquals(77.76, $price->getGross());
+        $this->assertEquals(23, $price->getTaxRate());
+    }
+
+    public function testDivideWithSpecificPrice()
+    {
+        $price = new Price(0.67, 0.82, 'PLN', 23);
+        $price = $price->divide(1);
+
+        $this->assertEquals(0.67, $price->getNett());
+        $this->assertEquals(0.82, $price->getGross());
+        $this->assertEquals(23, $price->getTaxRate());
     }
 
     /**
@@ -414,11 +439,12 @@ class PriceTest extends \PHPUnit_Framework_TestCase
         $usd->add($eur);
     }
 
-    public function testInvalidTaxRate()
-    {
-        $this->setExpectedException("\\LogicException");
-        $price = new Price(100.00, 120.00, "USD", 10);
-    }
+    // comment because Tax::validate() is commented
+//    public function testInvalidTaxRate()
+//    {
+//        $this->setExpectedException("\\LogicException");
+//        $price = new Price(100.00, 120.00, "USD", 10);
+//    }
 
     public function testFloatTaxRate()
     {
