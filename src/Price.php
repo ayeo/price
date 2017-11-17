@@ -286,7 +286,7 @@ class Price
         $nett = $this->getNett() / $times;
         $gross = $this->getGross() / $times;
 
-        return new Price($nett, $gross, $this->getCurrencySymbol());
+        return new Price($nett, $gross, $this->getCurrencySymbol(), $this->getTaxRate());
     }
 
     /**
