@@ -451,4 +451,12 @@ class PriceTest extends \PHPUnit_Framework_TestCase
         $this->setExpectedException("\\LogicException");
         $price = new Price(100.00, 120.00, "USD", 19.99);
     }
+
+    public function testFluentInterface()
+    {
+    	$price = Price::buildByGross(100, 23, "PLN");
+    	$newPrice = $price->add($price)->multiply(2)->divide(3);
+
+    	$this->assertEquals((100+100)*2/3, $newPrice->getGross(), "", 0.01);
+    }
 }
