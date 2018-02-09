@@ -244,7 +244,8 @@ class Price
         $newGross = $this->getGross() + $priceToAdd->getGross();
         $newNett = $this->getNett() + $priceToAdd->getNett();
 
-        return new Price($newNett, $newGross, $currency, $this->getTaxForPrices($this, $priceToAdd));
+	    $taxRate = $this->getTaxForPrices($this, $priceToAdd);
+	    return new Price($newNett, $newGross, $currency, $taxRate);
     }
 
     /**
@@ -295,6 +296,14 @@ class Price
 
     private function getTaxForPrices(Price $A, Price $B)
     {
+    	if ($A->isEmpty()) {
+	    	return $B->getTaxValue();
+	    }
+
+	    if ($B->isEmpty()) {
+		    return $A->getTaxValue();
+	    }
+
         if ($this->areTaxesIdentical($A, $B)) {
             return $A->getTaxValue();
         }
