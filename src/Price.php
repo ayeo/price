@@ -270,7 +270,7 @@ class Price
         $nett = $this->getNett() * $times;
         $gross = $this->getGross() * $times;
 
-        return new Price($nett, $gross, $this->getCurrencySymbol());
+        return new Price($nett, $gross, $this->getCurrencySymbol(), $this->getTaxRate());
     }
 
     /**
@@ -319,6 +319,10 @@ class Price
         $gross = new Money($grossValue);
         $this->checkCurrencies($this->getCurrency(), new Currency($currencySymbol));
 
+	    if ($grossValue == 0)
+	    {
+		    return clone($this);
+	    }
 
         if ($gross->getValue() > $this->getGross()) {
             return new Price(0, 0, $this->getCurrencySymbol());

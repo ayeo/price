@@ -21,7 +21,7 @@ class Money
 			throw new \LogicException('Money value must be positive');
 		}
 
-		$this->value = (float) $value;
+		$this->value = round((float) $value, 2);
 	}
 
 	/**
