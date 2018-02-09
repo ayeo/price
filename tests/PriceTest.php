@@ -462,4 +462,28 @@ class PriceTest extends \PHPUnit_Framework_TestCase
 
     	$this->assertEquals((100+100)*2/3, $newPrice->getGross(), "", 0.01);
     }
+
+	/**
+	 * @expectedException LogicException
+	 */
+    public function testCreateEmptyPriceWithNoCurrency()
+    {
+    	$price = Price::buildEmpty();
+    	$price->getCurrency();
+    }
+
+    public function testAddEmptyToNonEmpty()
+    {
+    	$A = Price::buildEmpty();
+    	$B = Price::buildByGross(10.50, 19, 'EUR');
+
+    	$result1 = $A->add($B);
+    	$result2 = $B->add($A);
+
+    	$this->assertEquals($result1, $result2);
+    	$this->assertEquals(19, $result1->getTaxRate());
+	    $this->assertEquals('EUR', $result1->getCurrencySymbol());
+	    $this->assertEquals(19, $result2->getTaxRate());
+	    $this->assertEquals('EUR', $result2->getCurrencySymbol());
+    }
 }

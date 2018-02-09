@@ -36,9 +36,17 @@ class Price
      * @param float $gross
      * @param string $currencySymbol
      */
-    public function __construct($nett = 0.00, $gross = 0.00, $currencySymbol, $taxRate = null)
+    public function __construct($nett = 0.00, $gross = 0.00, $currencySymbol = null, $taxRate = null)
     {
-        $this->currency = new Currency($currencySymbol);
+    	if ($nett == 0 && $gross == 0 && is_null($currencySymbol)) {
+
+	    }
+	    else
+	    {
+		    $this->currency = new Currency($currencySymbol);
+	    }
+
+
         $this->nett = new Money($nett);
         $this->gross = new Money($gross);
 
@@ -78,9 +86,9 @@ class Price
      * @param $currencySymbol
      * @return Price
      */
-    public static function buildEmpty($currencySymbol)
+    public static function buildEmpty($currency = null)
     {
-        return new Price(0, 0, $currencySymbol, 0);
+        return new Price(0, 0, $currency, 0);
     }
 
     /**
@@ -114,7 +122,12 @@ class Price
      */
     public function getNett()
     {
-        return round($this->nett->getValue(), $this->currency->getPrecision());
+	    if (is_null($this->currency)){
+		    return $this->nett->getValue();
+	    }
+
+	    return round($this->nett->getValue(), $this->currency->getPrecision());
+
     }
 
     /**
@@ -122,7 +135,11 @@ class Price
      */
     public function getGross()
     {
-        return round($this->gross->getValue(), $this->currency->getPrecision());
+    	if (is_null($this->currency)) {
+		    return $this->gross->getValue(); //should be always 0
+	    }
+
+	    return round($this->gross->getValue(), $this->currency->getPrecision());
     }
 
     /**
@@ -198,7 +215,12 @@ class Price
      */
     public function isEqual(Price $price)
     {
-	$isCurrencyEqual = $this->getCurrency()->isEqual($price->getCurrency());
+    	try {
+		    $isCurrencyEqual = $this->getCurrency()->isEqual($price->getCurrency());
+	    } catch (\LogicException $e) {
+    		return false;
+	    }
+
         $isGrossEqual = $this->getGross() === $price->getGross();
         $isNettEqual = $this->getNett() === $price->getNett();
 
@@ -211,12 +233,18 @@ class Price
      */
     public function add(Price $priceToAdd)
     {
-        $this->checkCurrencies($this->getCurrency(), $priceToAdd->getCurrency());
+	    if ($this->isEmpty() || $priceToAdd->isEmpty()) {
+
+	    } else {
+		    $this->checkCurrencies($this->getCurrency(), $priceToAdd->getCurrency());
+	    }
+
+	    $currency = $this->buildCurrency($this, $priceToAdd);
 
         $newGross = $this->getGross() + $priceToAdd->getGross();
         $newNett = $this->getNett() + $priceToAdd->getNett();
 
-        return new Price($newNett, $newGross, $this->getCurrencySymbol(), $this->getTaxForPrices($this, $priceToAdd));
+        return new Price($newNett, $newGross, $currency, $this->getTaxForPrices($this, $priceToAdd));
     }
 
     /**
@@ -225,16 +253,44 @@ class Price
      */
     public function subtract(Price $priceToSubtract)
     {
-        $this->checkCurrencies($this->getCurrency(), $priceToSubtract->getCurrency());
+    	if ($this->isEmpty() || $priceToSubtract->isEmpty()) {
+
+	    } else {
+		    $this->checkCurrencies($this->getCurrency(), $priceToSubtract->getCurrency());
+	    }
+
+	    $currency = $this->buildCurrency($this, $priceToSubtract);
 
         if ($this->isGreaterThan($priceToSubtract)) {
             $newGross = $this->getGross() - $priceToSubtract->getGross();
             $newNett = $this->getNett() - $priceToSubtract->getNett();
 
-            return new Price($newNett, $newGross, $this->getCurrencySymbol(), $this->getTaxForPrices($this, $priceToSubtract));
+            return new Price($newNett, $newGross, $currency, $this->getTaxForPrices($this, $priceToSubtract));
         }
 
-        return Price::buildEmpty($this->getCurrencySymbol());
+        return Price::buildEmpty();
+    }
+
+    private function buildCurrency(Price $A, Price $B)
+    {
+    	if ($A->isEmpty() === false) {
+    		return $A->getCurrency();
+	    }
+
+	    if ($B->isEmpty() === false) {
+    		return $B->getCurrency();
+	    }
+
+	    return null;
+    }
+    public function isEmpty()
+    {
+    	if ($this->gross->getValue() == 0 && $this->nett->getValue() == 0 && is_null($this->currency))
+	    {
+	    	return true;
+	    }
+
+	    return false;
     }
 
     private function getTaxForPrices(Price $A, Price $B)
@@ -296,6 +352,10 @@ class Price
      */
     public function getCurrencySymbol()
     {
+    	if (is_null($this->currency)) {
+    		return null;
+	    }
+
         return (string) $this->currency;
     }
 
@@ -304,6 +364,9 @@ class Price
      */
     public function getCurrency()
     {
+    	if (is_null($this->currency)) {
+    		throw new \LogicException('Currency is unknown');
+	    }
         return $this->currency;
     }
 
@@ -377,5 +440,14 @@ class Price
     public function hasTaxRate()
     {
         return $this->mixedTax == false;
+    }
+
+    public function getIsCurrencyMergable($symbol)
+    {
+    	if (isset($this->currency) === false) {
+    		return true;
+	    }
+
+	    return ((string) $this->currency) == $symbol;
     }
 }
