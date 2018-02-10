@@ -286,7 +286,7 @@ class Price
     }
     public function isEmpty()
     {
-    	if ($this->gross->getValue() == 0 && $this->nett->getValue() == 0 && is_null($this->currency))
+    	if ($this->gross->getValue() == 0 && $this->nett->getValue() == 0)
 	    {
 	    	return true;
 	    }
