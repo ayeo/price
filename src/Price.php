@@ -209,22 +209,38 @@ class Price
         return $this->getGross() > $price->getGross();
     }
 
+    private function hasCurrency()
+    {
+    	return is_null($this->currency) === false;
+    }
+
+    private function compareCurrencies(Price $A, Price $B)
+    {
+    	if ($A->hasCurrency() === false && $B->hasCurrency() === false)  {
+	    	return true;
+	    }
+
+	    try {
+		    return $A->getCurrency()->isEqual($B->getCurrency());
+	    } catch (\LogicException $e) {
+		    return false;
+	    }
+    }
+
     /**
      * @param Price $price
      * @return bool
      */
     public function isEqual(Price $price)
     {
-    	try {
-		    $isCurrencyEqual = $this->getCurrency()->isEqual($price->getCurrency());
-	    } catch (\LogicException $e) {
+    	if ($this->compareCurrencies($this, $price) === false) {
     		return false;
 	    }
 
         $isGrossEqual = $this->getGross() === $price->getGross();
         $isNettEqual = $this->getNett() === $price->getNett();
 
-        return ($isGrossEqual  && $isNettEqual && $isCurrencyEqual);
+        return ($isGrossEqual  && $isNettEqual);
     }
 
     /**
