@@ -14,11 +14,7 @@ class Tax
 			throw new \LogicException('Tax percent must be integer');
 		}
 
-		if ((float) $tax != round($tax, 0)) {
-			throw new \LogicException('Tax percent must be integer');
-		}
-
-		if ($tax < 0) {
+		if ($tax < -0.00001) {
 			throw new \LogicException('Tax percent must positive');
 		}
 
