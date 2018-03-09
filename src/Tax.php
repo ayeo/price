@@ -3,72 +3,76 @@ namespace Ayeo\Price;
 
 class Tax
 {
-	/**
-	 * @var int
-	 */
-	private $value;
+    /**
+     * @var int
+     */
+    private $value;
 
-	public function __construct($tax)
-	{
-		if (is_numeric($tax) === false) {
-			throw new \LogicException('Tax percent must be integer');
-		}
+    public function __construct($tax)
+    {
+        if (is_numeric($tax) === false) {
+            throw new \LogicException('Tax percent must be integer');
+        }
 
-		if ($tax < -0.00001) {
-			throw new \LogicException('Tax percent must positive');
-		}
+        if ((int) $tax != (string) $tax) {
+            throw new \LogicException('Tax percent must be integer');
+        }
 
-		$this->value = $tax;
-	}
+        if ($tax < 0) {
+            throw new \LogicException('Tax percent must positive');
+        }
 
-	/**
-	 * @param float $nett
-	 * @param float $gross
-	 * @return Tax
-	 */
-	static public function build($nett, $gross)
-	{
-		//todo validate?
-		if ($nett > 0) {
-			$taxValue =  (int) round($gross / $nett * 100 - 100, 0);
-		} else {
-			$taxValue = 0;
-		}
+        $this->value = (int) $tax;
+    }
 
-		return new Tax($taxValue);
-	}
+    /**
+     * @param float $nett
+     * @param float $gross
+     * @return Tax
+     */
+    static public function build($nett, $gross)
+    {
+        //todo validate?
+        if ($nett > 0) {
+            $taxValue =  (int) round($gross / $nett * 100 - 100, 0);
+        } else {
+            $taxValue = 0;
+        }
 
-	/**
-	 * @return int
-	 */
-	public function getValue()
-	{
-		return $this->value;
-	}
+        return new Tax($taxValue);
+    }
 
-	/**
-	 * Calculate gross value based on given nett
-	 *
-	 * @param float $nett
-	 * @return float
-	 */
-	public function calculateGross($nett)
-	{
-		return $nett * ($this->getValue() + 100) / 100;
-	}
+    /**
+     * @return int
+     */
+    public function getValue()
+    {
+        return $this->value;
+    }
 
-	/**
-	 * Calculate nett value based on given gross
-	 *
-	 * @param float $gross
-	 * @return float
-	 */
-	public function calculateNett($gross)
-	{
-		return $gross * 100 / ($this->getValue() + 100);
-	}
+    /**
+     * Calculate gross value based on given nett
+     *
+     * @param float $nett
+     * @return float
+     */
+    public function calculateGross($nett)
+    {
+        return $nett * ($this->getValue() + 100) / 100;
+    }
 
-	public function validate($nett, $gross)
+    /**
+     * Calculate nett value based on given gross
+     *
+     * @param float $gross
+     * @return float
+     */
+    public function calculateNett($gross)
+    {
+        return $gross * 100 / ($this->getValue() + 100);
+    }
+
+    public function validate($nett, $gross)
     {
         //can not throw exception couse dp catch it and not working
 //        if (round($gross, 2) !== round($nett * (1 + $this->getValue()/ 100), 2)) {
