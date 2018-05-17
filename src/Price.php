@@ -249,18 +249,11 @@ class Price
      */
     public function add(Price $priceToAdd)
     {
-	    if ($this->isEmpty() || $priceToAdd->isEmpty()) {
-
-	    } else {
-		    $this->checkCurrencies($this->getCurrency(), $priceToAdd->getCurrency());
-	    }
-
 	    $currency = $this->buildCurrency($this, $priceToAdd);
-
         $newGross = $this->getGross() + $priceToAdd->getGross();
         $newNett = $this->getNett() + $priceToAdd->getNett();
-
 	    $taxRate = $this->getTaxForPrices($this, $priceToAdd);
+
 	    return new Price($newNett, $newGross, $currency, $taxRate);
     }
 
@@ -270,14 +263,7 @@ class Price
      */
     public function subtract(Price $priceToSubtract)
     {
-    	if ($this->isEmpty() || $priceToSubtract->isEmpty()) {
-
-	    } else {
-		    $this->checkCurrencies($this->getCurrency(), $priceToSubtract->getCurrency());
-	    }
-
 	    $currency = $this->buildCurrency($this, $priceToSubtract);
-
         if ($this->isGreaterThan($priceToSubtract)) {
             $newGross = $this->getGross() - $priceToSubtract->getGross();
             $newNett = $this->getNett() - $priceToSubtract->getNett();
@@ -288,8 +274,17 @@ class Price
         return Price::buildEmpty();
     }
 
+    /**
+     * @param Price $A
+     * @param Price $B
+     * @return Currency|null
+     */
     private function buildCurrency(Price $A, Price $B)
     {
+        if ($A->isEmpty() === false && $B->isEmpty() === false) {
+            $this->checkCurrencies($A->getCurrency(), $B->getCurrency());
+        }
+
     	if ($A->hasCurrency()) {
     		return $A->getCurrency();
 	    }
@@ -300,6 +295,10 @@ class Price
 
 	    return null;
     }
+
+    /**
+     * @return bool
+     */
     public function isEmpty()
     {
     	if ($this->gross->getValue() == 0 && $this->nett->getValue() == 0)
