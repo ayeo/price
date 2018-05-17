@@ -290,11 +290,11 @@ class Price
 
     private function buildCurrency(Price $A, Price $B)
     {
-    	if ($A->isEmpty() === false) {
+    	if ($A->hasCurrency()) {
     		return $A->getCurrency();
 	    }
 
-	    if ($B->isEmpty() === false) {
+	    if ($B->hasCurrency()) {
     		return $B->getCurrency();
 	    }
 

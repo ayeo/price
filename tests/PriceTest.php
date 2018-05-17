@@ -486,4 +486,22 @@ class PriceTest extends \PHPUnit_Framework_TestCase
 	    $this->assertEquals(19, $result2->getTaxRate());
 	    $this->assertEquals('EUR', $result2->getCurrencySymbol());
     }
+
+
+    public function testAddingEmpties()
+    {
+        $list = [
+            new Price(0, 0, 'PLN'),
+            new Price(0, 0, 'PLN')
+        ];
+
+        $total = Price::buildEmpty();
+
+        foreach ($list as $priceToAdd) {
+            $total = $total->add($priceToAdd);
+        }
+
+        $this->assertEquals(0, $total->getGross());
+        $this->assertEquals('PLN', $total->getCurrency());
+    }
 }
