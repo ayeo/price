@@ -504,4 +504,25 @@ class PriceTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(0, $total->getGross());
         $this->assertEquals('PLN', $total->getCurrency());
     }
+    
+    public function testMultiplyByZero()
+    {
+        $price = Price::buildByNett(10, 23, 'PLN');
+        
+        $results = $price->multiply(0);
+        
+        $this->assertEquals(0, $results->getNett());
+        $this->assertEquals(0, $results->getGross());
+        $this->assertEquals(23, $results->getTaxRate());
+    }
+    
+    /**
+     * @expectedException LogicException
+     * @expectedExceptionMessage Multiply param must greater than 0
+     */
+    public function testMultipleByNegativeValue()
+    {
+        $price = Price::buildByNett(10, 23, 'PLN');
+        $price->multiply(-5);
+    }
 }

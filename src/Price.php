@@ -343,7 +343,7 @@ class Price
      */
     public function multiply($times)
     {
-        if ($times <= 0) {
+        if ($times < 0) {
             throw new \LogicException('Multiply param must greater than 0');
         }
 
