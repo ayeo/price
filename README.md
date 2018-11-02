@@ -2,6 +2,7 @@
 [![Software License](https://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat-square)](license.md)
 [![Packagist Version](https://img.shields.io/packagist/v/ayeo/price.svg?style=flat-square)](https://packagist.org/packages/ayeo/price)
 [![Coverage](https://codecov.io/gh/ayeo/price/branch/master/graph/badge.svg)](https://codecov.io/gh/ayeo/price)
+
 # Price
 
 Simple DDD price model. The goal is to make model usage as easy as possible. Creating object is 
