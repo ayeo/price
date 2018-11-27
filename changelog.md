@@ -1,5 +1,8 @@
 This is draft, will polish it later
 
+1.0.15
+- Fix building empty price, now returns one class instance per currency
+
 1.0.3
 - New tax policy
 

@@ -88,7 +88,14 @@ class Price
      */
     public static function buildEmpty($currency = null)
     {
-        return new Price(0, 0, $currency, 0);
+        static $emptyPrice = [];
+    
+        $currencySymbol = (string)$currency;
+        if (array_key_exists($currencySymbol, $emptyPrice)) {
+            return $emptyPrice[$currencySymbol];
+        }
+    
+        return $emptyPrice[$currencySymbol] = new Price(0, 0, $currency, 0);
     }
 
     /**
