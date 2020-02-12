@@ -38,8 +38,9 @@ class Price
      */
     public function __construct($nett = 0.00, $gross = 0.00, $currencySymbol = null, $taxRate = null)
     {
-    	if ($nett == 0 && $gross == 0 && is_null($currencySymbol)) {
-
+    	if ($nett == 0 && $gross == 0 && is_null($currencySymbol))
+    	{
+            //allow no currency for empty price
 	    }
 	    else
 	    {
@@ -89,12 +90,12 @@ class Price
     public static function buildEmpty($currency = null)
     {
         static $emptyPrice = [];
-    
+
         $currencySymbol = (string)$currency;
         if (array_key_exists($currencySymbol, $emptyPrice)) {
             return $emptyPrice[$currencySymbol];
         }
-    
+
         return $emptyPrice[$currencySymbol] = new Price(0, 0, $currency, 0);
     }
 
