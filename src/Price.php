@@ -424,7 +424,7 @@ class Price
         }
 
         $newGross = $this->getGross() - $gross->getValue();
-        return new Price($this->getTax()->calculateNett($newGross), $newGross, $this->getCurrencySymbol());
+        return new Price($this->getTax()->calculateNett($newGross), $newGross, $this->getCurrencySymbol(), $this->tax->getValue());
     }
 
     /**
