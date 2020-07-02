@@ -276,6 +276,45 @@ class PriceTest extends \PHPUnit_Framework_TestCase
         new Price(10.00, -15.00, 'USD');
     }
 
+    public function  testSubtractNett()
+    {
+        $price = new Price(13.34, 15.53, 'USD');
+        $result = $price->subtractNett(10.00, 'USD');
+
+        $this->assertEquals(3.34, $result->getNett());
+        $this->assertEquals(3.87, $result->getGross());
+    }
+
+    /**
+     * @expectedException           LogicException
+     * @expectedExceptionMessage    Money value must be positive
+     */
+    public function testSubtractNegativeNett()
+    {
+        $price = new Price(13.34, 15.53, 'USD');
+        $price->subtractNett(-10.00, 'USD');
+    }
+
+    /**
+     * Allow to subtract 0
+     */
+    public function testSubtractZeroNett()
+    {
+        $price = new Price(13.34, 15.53, 'USD');
+        $newPrice = $price->subtractNett(0.00, 'USD');
+        $this->assertTrue($price->isEqual($newPrice));
+    }
+
+    /**
+     * @expectedException           LogicException
+     * @expectedExceptionMessage    Money value must be numeric
+     */
+    public function testSubtractStringNett()
+    {
+        $price = new Price(13.34, 15.53, 'USD');
+        $price->subtractNett("number", 'USD');
+    }
+
     public function  testSubtractGross()
     {
         $price = new Price(13.34, 15.53, 'USD');
