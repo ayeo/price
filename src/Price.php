@@ -428,6 +428,32 @@ class Price
     }
 
     /**
+     * Allow to subtract from nett value without knowing price tax rate
+     *
+     * @param float $nettValue
+     * @param string $currencySymbol
+     * @return Price
+     */
+    public function subtractNett($nettValue, $currencySymbol)
+    {
+        $nett = new Money($nettValue);
+        $this->checkCurrencies($this->getCurrency(), new Currency($currencySymbol));
+
+        if ($nettValue == 0)
+        {
+            return clone($this);
+        }
+
+        if ($nett->getValue() > $this->getNett())
+        {
+            return new Price(0, 0, $this->getCurrencySymbol());
+        }
+
+        $newNett = $this->getNett() - $nett->getValue();
+        return new Price($newNett, $this->getTax()->calculateGross($newNett), $this->getCurrencySymbol(), $this->tax->getValue());
+    }
+
+    /**
      * @param float $grossValue
      * @return Price
      */
