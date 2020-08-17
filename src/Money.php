@@ -12,7 +12,7 @@ class Money
 			throw new \LogicException('Money value must be positive');
 		}
 
-		$this->value = round((float) $value, 2);
+		$this->value = $value;
 	}
 
 	public function getValue(): float
