@@ -1,4 +1,5 @@
 <?php
+
 namespace Ayeo\Price\Test;
 
 use Ayeo\Price\Tax;

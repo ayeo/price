@@ -1,4 +1,5 @@
 <?php
+
 namespace Ayeo\Price;
 
 /**
@@ -28,43 +29,28 @@ class Currency
 	/**
 	 * @var string ISO 4217 (3 chars)
 	 */
-	public function __construct($symbol)
+	public function __construct(string $symbol)
 	{
 		$this->symbol =  $this->validate($symbol);
 	}
 
-	/**
-	 * @return string
-	 */
-	public function __toString()
+	public function __toString(): string
 	{
 		return $this->symbol;
 	}
 
-	/**
-	 * @return int
-	 */
-	public function getPrecision()
+	public function getPrecision(): int
 	{
 		//todo: add precision map
 		return Currency::PRECISION;
 	}
 
-	/**
-	 * @param Currency $currency
-	 * @return bool
-	 */
-	public function isEqual(Currency $currency)
+	public function isEqual(Currency $currency): bool
 	{
 		return (string) $this === (string) $currency;
 	}
 
-	/**
-	 * @param string $symbol
-	 * @return string
-	 * @throws \LogicException
-	 */
-	private function validate($symbol)
+	private function validate(string $symbol): string
 	{
 		if (preg_match('#^[A-Z]{3}$#', $symbol)) {
 			return strtoupper($symbol);

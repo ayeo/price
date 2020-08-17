@@ -5,13 +5,6 @@ env:
  - CODECOV_TOKEN="86760c0b-d0b1-4f5d-be3f-d7b4fac9c9c3"
 
 php:
- - 5.4
- - 5.5
- - 5.6
- - 7.0
- - 7.1
- - 7.2
- - 7.3
  - 7.4
 
 sudo: false

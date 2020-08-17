@@ -1,36 +1,21 @@
 <?php
+
 namespace Ayeo\Price;
 
 class Tax
 {
-    /**
-     * @var int
-     */
-    private $value;
+    private int $value;
 
-    public function __construct($tax)
+    public function __construct(int $tax)
     {
-        if (is_numeric($tax) === false) {
-            throw new \LogicException('Tax percent must be integer');
-        }
-
-        if ((int) $tax != (string) $tax) {
-            throw new \LogicException('Tax percent must be integer');
-        }
-
         if ($tax < 0) {
             throw new \LogicException('Tax percent must positive');
         }
 
-        $this->value = (int) $tax;
+        $this->value = $tax;
     }
 
-    /**
-     * @param float $nett
-     * @param float $gross
-     * @return Tax
-     */
-    static public function build($nett, $gross)
+    static public function build(float $nett, float $gross): Tax
     {
         //todo validate?
         if ($nett > 0) {
@@ -42,37 +27,28 @@ class Tax
         return new Tax($taxValue);
     }
 
-    /**
-     * @return int
-     */
-    public function getValue()
+    public function getValue(): int
     {
         return $this->value;
     }
 
     /**
      * Calculate gross value based on given nett
-     *
-     * @param float $nett
-     * @return float
      */
-    public function calculateGross($nett)
+    public function calculateGross(float $nett): float
     {
         return $nett * ($this->getValue() + 100) / 100;
     }
 
     /**
-     * Calculate nett value based on given gross
-     *
-     * @param float $gross
-     * @return float
+     * Calculate nett value based on given grossfloat
      */
-    public function calculateNett($gross)
+    public function calculateNett(float $gross): float
     {
         return $gross * 100 / ($this->getValue() + 100);
     }
 
-    public function validate($nett, $gross)
+    public function validate(float $nett, float $gross): void
     {
         //can not throw exception couse dp catch it and not working
 //        if (round($gross, 2) !== round($nett * (1 + $this->getValue()/ 100), 2)) {

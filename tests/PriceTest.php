@@ -1,4 +1,5 @@
 <?php
+
 namespace Ayeo\Price\Test;
 
 use Ayeo\Price\Price;
@@ -23,7 +24,7 @@ class PriceTest extends \PHPUnit_Framework_TestCase
 
         $this->assertEquals(300.00, $result->getNett());
         $this->assertEquals(360.00, $result->getGross());
-        $this->assertEquals(20, $result->getTaxValue());
+        $this->assertEquals(20, $result->getTaxRate());
         //$this->assertEquals(true, $result->hasTaxRate());
     }
 
@@ -69,7 +70,7 @@ class PriceTest extends \PHPUnit_Framework_TestCase
 	public function testCreating($nett, $gross, $tax)
 	{
 		$price = new Price($nett, $gross, 'USD', $tax);
-        $this->assertEquals($tax, $price->getTaxValue());
+        $this->assertEquals($tax, $price->getTaxRate());
 	}
 
     /**
@@ -133,8 +134,8 @@ class PriceTest extends \PHPUnit_Framework_TestCase
 		$this->assertEquals($expectedGross, $A->add($B)->getGross());
 		$this->assertEquals($expectedGross, $B->add($A)->getGross());
 
-		$this->assertEquals($tax, $B->add($A)->getTaxValue());
-		$this->assertEquals($tax, $A->add($B)->getTaxValue());
+		$this->assertEquals($tax, $B->add($A)->getTaxRate());
+		$this->assertEquals($tax, $A->add($B)->getTaxRate());
 
 		$this->assertEquals($nettA, $A->getNett(), '', 0.01);
 		$this->assertEquals($nettB, $B->getNett(), '', 0.01);
@@ -195,7 +196,7 @@ class PriceTest extends \PHPUnit_Framework_TestCase
     public function testNettSameAsGross()
     {
         $price = new Price(100.00, 100.00, 'USD', 0);
-        $this->assertEquals(0, $price->getTaxValue());
+        $this->assertEquals(0, $price->getTaxRate());
     }
 
     /**
@@ -305,16 +306,6 @@ class PriceTest extends \PHPUnit_Framework_TestCase
         $this->assertTrue($price->isEqual($newPrice));
     }
 
-    /**
-     * @expectedException           LogicException
-     * @expectedExceptionMessage    Money value must be numeric
-     */
-    public function testSubtractStringNett()
-    {
-        $price = new Price(13.34, 15.53, 'USD');
-        $price->subtractNett("number", 'USD');
-    }
-
     public function  testSubtractGross()
     {
         $price = new Price(13.34, 15.53, 'USD');
@@ -342,17 +333,6 @@ class PriceTest extends \PHPUnit_Framework_TestCase
         $newPrice = $price->subtractGross(0.00, 'USD');
         $this->assertTrue($price->isEqual($newPrice));
     }
-
-    /**
-     * @expectedException           LogicException
-     * @expectedExceptionMessage    Money value must be numeric
-     */
-    public function testSubtractString()
-    {
-        $price = new Price(13.34, 15.53, 'USD');
-        $price->subtractGross("number", 'USD');
-    }
-
     public function testAddGross()
     {
         $A = new Price(13.24, 20.99, 'USD');
@@ -370,7 +350,7 @@ class PriceTest extends \PHPUnit_Framework_TestCase
 
         $this->assertEquals(246.00, $result->getGross());
         $this->assertEquals(200.00, $result->getNett());
-        $this->assertEquals(23, $result->getTaxValue());
+        $this->assertEquals(23, $result->getTaxRate());
         $this->assertEquals('USD', $result->getCurrencySymbol());
 
     }
@@ -382,24 +362,6 @@ class PriceTest extends \PHPUnit_Framework_TestCase
     public function testBuildByNettUsingNegativeTax()
     {
         Price::buildByNett(100.00, -2);
-    }
-
-    /**
-     * @expectedException           LogicException
-     * @expectedExceptionMessage    Tax percent must be integer
-     */
-    public function testBuildByNettUsingNonIntegerLikeTax()
-    {
-        Price::buildByNett(100.00, 2.02);
-    }
-
-    /**
-     * @expectedException           LogicException
-     * @expectedExceptionMessage    Tax percent must be integer
-     */
-    public function testBuildByNettUsingNonIntegerLikeStringTax()
-    {
-        Price::buildByNett(100.00, "2.02", 'USD');
     }
 
     public function testBuildByNettUsingIntegerTax()
@@ -485,14 +447,14 @@ class PriceTest extends \PHPUnit_Framework_TestCase
 //        $this->setExpectedException("\\LogicException");
 //        $price = new Price(100.00, 120.00, "USD", 10);
 //    }
-
-	/**
-	 * @expectedException LogicException
-	 */
-    public function testFloatTaxRate()
-    {
-        $price = new Price(100.00, 120.00, "USD", 19.99);
-    }
+//
+//	/**
+//	 * @expectedException LogicException
+//	 */
+//    public function testFloatTaxRate()
+//    {
+//        $price = new Price(100.00, 120.00, "USD", 19.99);
+//    }
 
     public function testFluentInterface()
     {

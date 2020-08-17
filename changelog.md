@@ -1,5 +1,8 @@
 This is draft, will polish it later
 
+1.1.0
+- Updated code to php 7.4 standards
+
 1.0.16
 - subtractNett() method added
 
