@@ -23,7 +23,11 @@
   },
   "autoload": {
     "psr-4": {
-      "Ayeo\\Price\\": "src//",
+      "Ayeo\\Price\\": "src//"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
       "Ayeo\\Price\\Test\\": "tests//"
     }
   }
