@@ -4,14 +4,13 @@ namespace Ayeo\Price\Test;
 
 use Ayeo\Price\Price;
 use LogicException;
+use PHPUnit\Framework\TestCase;
 
-class PriceTest extends \PHPUnit_Framework_TestCase
+class PriceTest extends TestCase
 {
-    /**
-     * @expectedException \LogicException
-     */
     public function testBuildInvalidPrice()
     {
+        $this->expectException(LogicException::class);
         new Price(120.00, 100.00, "PLN", 23);
     }
 
@@ -137,8 +136,8 @@ class PriceTest extends \PHPUnit_Framework_TestCase
 		$this->assertEquals($tax, $B->add($A)->getTaxRate());
 		$this->assertEquals($tax, $A->add($B)->getTaxRate());
 
-		$this->assertEquals($nettA, $A->getNett(), '', 0.01);
-		$this->assertEquals($nettB, $B->getNett(), '', 0.01);
+		$this->assertEqualsWithDelta($nettA, $A->getNett(), 0.01);
+		$this->assertEqualsWithDelta($nettB, $B->getNett(), 0.01);
 	}
 
 	public function addingDataProvider()
@@ -173,23 +172,17 @@ class PriceTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('USD', $C->getCurrencySymbol());
     }
 
-    /**
-     * @expectedException           LogicException
-     * @expectedExceptionMessage    Can not operate on different currencies ("USD" and "GBP")
-     */
     public function testAddingDifferentCurrencies()
     {
+        $this->expectExceptionMessage('Can not operate on different currencies ("USD" and "GBP")');
         $A = new Price(100, 130, 'USD');
         $B = new Price(300, 330, 'GBP');
         $A->add($B);
     }
 
-    /**
-     * @expectedException           LogicException
-     * @expectedExceptionMessage    Nett must not be greater than gross
-     */
     public function testNettGreaterThanGross()
     {
+        $this->expectExceptionMessage('Nett must not be greater than gross');
         new Price(100.00, 90.00, 'USD');
     }
 
@@ -199,12 +192,9 @@ class PriceTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(0, $price->getTaxRate());
     }
 
-    /**
-     * @expectedException           LogicException
-     * @expectedExceptionMessage    Invalid currency symbol: "PLNG"
-     */
     public function testInvalidCurrencySymbol()
     {
+        $this->expectExceptionMessage('Invalid currency symbol: "PLNG"');
         new Price(100, 200, 'PLNG');
     }
 
@@ -259,39 +249,30 @@ class PriceTest extends \PHPUnit_Framework_TestCase
         ];
     }
 
-    /**
-     * @expectedException           LogicException
-     * @expectedExceptionMessage    Money value must be positive
-     */
     public function testNegativeNett()
     {
+        $this->expectExceptionMessage('Money value must be positive');
         new Price(-10.00, 20, 'USD');
     }
 
-    /**
-     * @expectedException           LogicException
-     * @expectedExceptionMessage    Money value must be positive
-     */
     public function testNegativeNettAndGross()
     {
+        $this->expectExceptionMessage('Money value must be positive');
         new Price(10.00, -15.00, 'USD');
     }
 
     public function  testSubtractNett()
     {
-        $price = new Price(13.34, 15.53, 'USD');
-        $result = $price->subtractNett(10.00, 'USD');
+        $price = new Price(10, 12, 'USD');
+        $result = $price->subtractNett(5.00, 'USD');
 
-        $this->assertEquals(3.34, $result->getNett());
-        $this->assertEquals(3.87, $result->getGross());
+        $this->assertEquals(5, $result->getNett());
+        $this->assertEquals(6, $result->getGross());
     }
 
-    /**
-     * @expectedException           LogicException
-     * @expectedExceptionMessage    Money value must be positive
-     */
     public function testSubtractNegativeNett()
     {
+        $this->expectExceptionMessage('Money value must be positive');
         $price = new Price(13.34, 15.53, 'USD');
         $price->subtractNett(-10.00, 'USD');
     }
@@ -314,12 +295,9 @@ class PriceTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(5.53, $result->getGross());
     }
 
-    /**
-     * @expectedException           LogicException
-     * @expectedExceptionMessage    Money value must be positive
-     */
     public function testSubtractNegativeGross()
     {
+        $this->expectExceptionMessage('Money value must be positive');
         $price = new Price(13.34, 15.53, 'USD');
         $price->subtractGross(-10.00, 'USD');
     }
@@ -355,12 +333,9 @@ class PriceTest extends \PHPUnit_Framework_TestCase
 
     }
 
-    /**
-     * @expectedException           LogicException
-     * @expectedExceptionMessage    Tax percent must positive
-     */
     public function testBuildByNettUsingNegativeTax()
     {
+        $this->expectExceptionMessage('Tax percent must positive');
         Price::buildByNett(100.00, -2);
     }
 
@@ -430,12 +405,9 @@ class PriceTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(23, $price->getTaxRate());
     }
 
-    /**
-     * @expectedException           \LogicException
-     * @expectedExceptionMessage    Can not operate on different currencies ("USD" and "GBP")
-     */
     public function testAddDifferentCurrencies()
     {
+        $this->expectExceptionMessage('Can not operate on different currencies ("USD" and "GBP")');
         $usd = Price::buildByGross(100.00, 8, 'USD');
         $eur = Price::buildByGross(100.00, 8, 'GBP');
         $usd->add($eur);
@@ -447,28 +419,18 @@ class PriceTest extends \PHPUnit_Framework_TestCase
 //        $this->setExpectedException("\\LogicException");
 //        $price = new Price(100.00, 120.00, "USD", 10);
 //    }
-//
-//	/**
-//	 * @expectedException LogicException
-//	 */
-//    public function testFloatTaxRate()
-//    {
-//        $price = new Price(100.00, 120.00, "USD", 19.99);
-//    }
 
     public function testFluentInterface()
     {
     	$price = Price::buildByGross(100, 23, "PLN");
     	$newPrice = $price->add($price)->multiply(2)->divide(3);
 
-    	$this->assertEquals((100+100)*2/3, $newPrice->getGross(), "", 0.01);
+    	$this->assertEqualsWithDelta((100+100)*2/3, $newPrice->getGross(),  0.01);
     }
 
-	/**
-	 * @expectedException LogicException
-	 */
     public function testCreateEmptyPriceWithNoCurrency()
     {
+        $this->expectException(LogicException::class);
     	$price = Price::buildEmpty();
     	$price->getCurrency();
     }
@@ -516,13 +478,10 @@ class PriceTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(0, $results->getGross());
         $this->assertEquals(23, $results->getTaxRate());
     }
-    
-    /**
-     * @expectedException LogicException
-     * @expectedExceptionMessage Multiply param must greater than 0
-     */
+
     public function testMultipleByNegativeValue()
     {
+        $this->expectExceptionMessage('Multiply param must greater than 0');
         $price = Price::buildByNett(10, 23, 'PLN');
         $price->multiply(-5);
     }

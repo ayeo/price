@@ -3,8 +3,9 @@
 namespace Ayeo\Price\Test;
 
 use Ayeo\Price\Money;
+use PHPUnit\Framework\TestCase;
 
-class MoneyTest extends \PHPUnit_Framework_TestCase
+class MoneyTest extends TestCase
 {
     public function compareDataProvider(): array
     {

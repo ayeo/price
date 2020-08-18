@@ -8,7 +8,7 @@ class Money
 
 	public function __construct(float $value)
 	{
-		if ($value < 0) {
+		if ($value < 0.) {
 			throw new \LogicException('Money value must be positive');
 		}
 
