@@ -49,6 +49,10 @@ class StandardCalculator implements CalculatorInterface
         if ($left->isGreaterThan($right)) {
             $newGross = $left->getGross() - $right->getGross();
             $newNett = $left->getNett() - $right->getNett();
+            if ($newNett <= 0) { // in some situations with mixed taxes
+                return Price::buildEmpty((string)$currency, $this->getTaxForPrices($left, $right) !== null);
+
+            }
 
             return new Price($newNett, $newGross, $currency, $this->getTaxForPrices($left, $right));
         }
@@ -75,9 +79,8 @@ class StandardCalculator implements CalculatorInterface
         }
 
         $nett = $left->getNett() / $times;
-        $gross = $left->getGross() / $times;
 
-        return new Price($nett, $gross, $left->getCurrencySymbol(), $left->getTaxRate());
+        return Price::buildByNett($nett, $left->getTaxRate(), $left->getCurrencySymbol());
     }
 
     private function buildCurrency(Price $left, Price $right): ?Currency
