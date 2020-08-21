@@ -42,6 +42,6 @@ class CalculatorRegistry
 
     private function has(Currency $currency): bool
     {
-        return in_array((string)$currency, $this->calculators);
+        return array_key_exists((string)$currency, $this->calculators);
     }
 }
