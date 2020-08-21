@@ -24,8 +24,8 @@ class Price
             $this->currency = new Currency($currencySymbol);
         }
 
-        $this->nett = new Money($nett);
-        $this->gross = new Money($gross);
+        $this->nett = $this->getCalculator($this->currency)->decorateMoney(new Money($nett));
+        $this->gross = $this->getCalculator($this->currency)->decorateMoney(new Money($gross));
 
         if ($this->nett->isGreaterThan($this->gross))
         {
@@ -52,14 +52,7 @@ class Price
      */
     public static function buildEmpty(string $currency = null, bool $withTax = true): Price
     {
-        static $emptyPrice = [];
-
-        $currencySymbol = (string)$currency;
-        if (array_key_exists($currencySymbol, $emptyPrice)) {
-            return $emptyPrice[$currencySymbol];
-        }
-
-        return $emptyPrice[$currencySymbol] = new Price(0, 0, $currency, $withTax ? 0 : null);
+        return new Price(0, 0, $currency, $withTax ? 0 : null);
     }
 
     public static function buildByNett(float $nett, int $taxValue, string $currencySymbol = null): Price
@@ -225,7 +218,7 @@ class Price
         }
 
         return $this->getCalculator($this->getCurrency())
-            ->subtract($this, new Price($grossValue, $grossValue, $currencySymbol));
+            ->subtract($this, new Price($grossValue, $grossValue, $currencySymbol, null));
     }
 
     /**

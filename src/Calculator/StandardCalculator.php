@@ -3,10 +3,21 @@
 namespace Ayeo\Price\Calculator;
 
 use Ayeo\Price\Currency;
+use Ayeo\Price\Decorator\Money\DecoratorInterface;
+use Ayeo\Price\Money;
 use Ayeo\Price\Price;
+use LogicException;
 
 class StandardCalculator implements CalculatorInterface
 {
+    /** @var DecoratorInterface[] */
+    private array $decorators;
+
+    public function __construct(DecoratorInterface ...$decorators)
+    {
+        $this->decorators = $decorators;
+    }
+
     public function add(Price $left, Price $right): Price
     {
         if ($left->isEmpty()) {
@@ -42,13 +53,13 @@ class StandardCalculator implements CalculatorInterface
             return new Price($newNett, $newGross, $currency, $this->getTaxForPrices($left, $right));
         }
 
-        return Price::buildEmpty((string)$currency);
+        return Price::buildEmpty((string)$currency, $this->getTaxForPrices($left, $right) !== null);
     }
 
     public function multiply(Price $left, float $times): Price
     {
         if ($times < 0) {
-            throw new \LogicException('Multiply param must greater than 0');
+            throw new LogicException('Multiply param must greater than 0');
         }
 
         $nett = $left->getNett() * $times;
@@ -60,19 +71,13 @@ class StandardCalculator implements CalculatorInterface
     public function divide(Price $left, float $times): Price
     {
         if ($times <= 0) {
-            throw new \LogicException('Divide factor must be positive and greater than zero');
+            throw new LogicException('Divide factor must be positive and greater than zero');
         }
 
         $nett = $left->getNett() / $times;
         $gross = $left->getGross() / $times;
 
         return new Price($nett, $gross, $left->getCurrencySymbol(), $left->getTaxRate());
-    }
-
-    public function hasSameCurrencies(Price $left, Price $right): bool
-    {
-//        if ($left-=)
-        $this->compareCurrencySymbols($left->getCurrency(), $right->getCurrency());
     }
 
     private function buildCurrency(Price $left, Price $right): ?Currency
@@ -92,6 +97,9 @@ class StandardCalculator implements CalculatorInterface
         return null;
     }
 
+    /**
+     * @throws LogicException
+     */
     private function compareCurrencySymbols(Currency $left, Currency $right): void
     {
         if ($left->isEqual($right) === false) {
@@ -101,7 +109,7 @@ class StandardCalculator implements CalculatorInterface
                 (string)$right
             );
 
-            throw new \LogicException($message);
+            throw new LogicException($message);
         }
     }
 
@@ -130,5 +138,14 @@ class StandardCalculator implements CalculatorInterface
         }
 
         return $left->getTaxRate() === $right->getTaxRate();
+    }
+
+    public function decorateMoney(Money $money): Money
+    {
+        foreach($this->decorators as $decorator) {
+            $money = $decorator->decorateMoney($money);
+        }
+
+        return $money;
     }
 }
