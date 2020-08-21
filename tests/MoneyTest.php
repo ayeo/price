@@ -7,7 +7,7 @@ use PHPUnit\Framework\TestCase;
 
 class MoneyTest extends TestCase
 {
-    public function compareDataProvider(): array
+    public function dataProvider(): array
     {
         return [
             [1, 1, false],
@@ -22,13 +22,19 @@ class MoneyTest extends TestCase
     }
 
     /**
-     * @dataProvider compareDataProvider
+     * @dataProvider dataProvider
      */
-    public function test1(float $value, float $compareWith, bool $isGreater): void
+    public function testIsGreaterThan(float $value, float $compareWith, bool $isGreater): void
     {
         $money = new Money($value);
         $moneyCompareWith = new Money($compareWith);
         $result = $money->isGreaterThan($moneyCompareWith);
         $this->assertEquals($isGreater, $result);
+    }
+
+    public function testCanNotCreateNegativeMoney(): void
+    {
+        $this->expectException(\LogicException::class);
+        new Money(-1);
     }
 }
