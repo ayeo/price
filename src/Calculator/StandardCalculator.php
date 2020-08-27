@@ -23,9 +23,11 @@ class StandardCalculator implements CalculatorInterface
         if ($left->isEmpty()) {
             return clone $right;
         }
+
         if ($right->isEmpty()) {
             return clone $left;
         }
+
         $this->compareCurrencySymbols($left->getCurrency(), $right->getCurrency());
         $currency = $this->buildCurrency($left, $right);
         $newGross = $left->getGross() + $right->getGross();
@@ -40,6 +42,7 @@ class StandardCalculator implements CalculatorInterface
         if ($left->isEmpty()) {
             return $this->decoratePrice(clone $left);
         }
+
         if ($right->isEmpty()) {
             return $this->decoratePrice(clone $left);
         }
