@@ -24,5 +24,5 @@ interface CalculatorInterface
      * @throws LogicException
      */
     public function divide(Price $left, float $times): Price;
-    public function decorateMoney(Money $money): Money;
+    public function decoratePrice(Price $price): Price;
 }

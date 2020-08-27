@@ -24,8 +24,9 @@ class Price
             $this->currency = new Currency($currencySymbol);
         }
 
-        $this->nett = $this->getCalculator($this->currency)->decorateMoney(new Money($nett));
-        $this->gross = $this->getCalculator($this->currency)->decorateMoney(new Money($gross));
+
+        $this->nett = new Money($nett);
+        $this->gross = new Money($gross);
 
         if ($this->nett->isGreaterThan($this->gross))
         {
@@ -59,17 +60,19 @@ class Price
     {
         $tax = new Tax($taxValue);
 
-        return new Price($nett, $tax->calculateGross($nett), $currencySymbol, $taxValue);
+        return self::getCalculator($currencySymbol ? new Currency($currencySymbol) : null)
+            ->decoratePrice(new Price($nett, $tax->calculateGross($nett), $currencySymbol, $taxValue));
     }
 
     public static function buildByGross(float $gross, int $taxValue, ?string $currencySymbol): Price
     {
         $tax = new Tax($taxValue);
 
-        return new Price($tax->calculateNett($gross), $gross, $currencySymbol, $taxValue);
+        return self::getCalculator($currencySymbol ? new Currency($currencySymbol) : null)
+            ->decoratePrice(new Price($tax->calculateNett($gross), $gross, $currencySymbol, $taxValue));
     }
 
-    private function getCalculator(?Currency $currency): CalculatorInterface
+    private static function getCalculator(?Currency $currency): CalculatorInterface
     {
         return CalculatorRegistry::getInstance()->getCalculator($currency);
     }
