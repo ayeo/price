@@ -1,5 +1,12 @@
 This is draft, will polish it later
 
+2.0.0
+- Add calculators for math operations
+- Add money decorators
+
+1.1.0
+- Updated code to php 7.4 standards
+
 1.0.16
 - subtractNett() method added
 

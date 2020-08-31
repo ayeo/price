@@ -1,9 +1,11 @@
 <?php
+
 namespace Ayeo\Price\Test;
 
 use Ayeo\Price\Tax;
+use PHPUnit\Framework\TestCase;
 
-class TaxTest extends \PHPUnit_Framework_TestCase
+class TaxTest extends TestCase
 {
     /**
      * @dataProvider grossCalculationsProvider
