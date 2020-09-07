@@ -1,5 +1,9 @@
 This is draft, will polish it later
 
+2.0.1
+- Restore substractNett/substractGross calculation logic
+- Add checks for hasTaxRate during test substractNett/substractGross
+
 2.0.0
 - Add calculators for math operations
 - Add money decorators
