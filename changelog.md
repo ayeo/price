@@ -1,5 +1,9 @@
 This is draft, will polish it later
 
+2.0.3
+- Fix dividing in StandardCalculator
+- Fix math operations on price without currency symbol
+
 2.0.2
 - Change travis CI to github CI
 

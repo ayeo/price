@@ -163,15 +163,12 @@ class Price
 
     public function add(Price $priceToAdd): Price
     {
-        if ($this->isEmpty()) {
-            return $this->getCalculator($priceToAdd->getCurrency())->add($this, $priceToAdd);
-        }
-        return $this->getCalculator($this->getCurrency())->add($this, $priceToAdd);
+        return $this->getCalculator($this->currency)->add($this, $priceToAdd);
     }
 
     public function subtract(Price $priceToSubtract): Price
     {
-        return $this->getCalculator($this->getCurrency())->subtract($this, $priceToSubtract);
+        return $this->getCalculator($this->currency)->subtract($this, $priceToSubtract);
     }
 
     public function isEmpty(): bool
@@ -186,12 +183,12 @@ class Price
 
     public function multiply(float $times): Price
     {
-        return $this->getCalculator($this->getCurrency())->multiply($this, $times);
+        return $this->getCalculator($this->currency)->multiply($this, $times);
     }
 
     public function divide(float $times): Price
     {
-        return $this->getCalculator($this->getCurrency())->divide($this, $times);
+        return $this->getCalculator($this->currency)->divide($this, $times);
     }
 
     public function getCurrencySymbol(): ?string
@@ -220,7 +217,7 @@ class Price
             $currencySymbol = $this->getCurrencySymbol();
         }
 
-        return $this->getCalculator($this->getCurrency())
+        return $this->getCalculator($this->currency)
             ->subtract($this, new Price($this->tax->calculateNett($grossValue), $grossValue, $currencySymbol, null));
     }
 
@@ -233,7 +230,7 @@ class Price
             $currencySymbol = $this->getCurrencySymbol();
         }
 
-        return $this->getCalculator($this->getCurrency())
+        return $this->getCalculator($this->currency)
             ->subtract($this, new Price($nettValue, $this->tax->calculateGross($nettValue), $currencySymbol, null));
     }
 
@@ -247,7 +244,7 @@ class Price
             $currencySymbol = $this->getCurrencySymbol();
         }
 
-        return $this->getCalculator($this->getCurrency())
+        return $this->getCalculator($this->currency)
             ->add($this, Price::buildByGross($grossValue, $this->getTaxRate(), $currencySymbol));
     }
 

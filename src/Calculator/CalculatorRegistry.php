@@ -3,6 +3,7 @@
 namespace Ayeo\Price\Calculator;
 
 use Ayeo\Price\Currency;
+use Ayeo\Price\Decorator\Price\GrossNettRoundDecorator;
 
 class CalculatorRegistry
 {
@@ -19,7 +20,7 @@ class CalculatorRegistry
     public static function getInstance(): CalculatorRegistry
     {
         if (null === self::$instance) {
-            self::$instance = new CalculatorRegistry(new StandardCalculator());
+            self::$instance = new CalculatorRegistry(new StandardCalculator(new GrossNettRoundDecorator(2)));
         }
 
         return self::$instance;
