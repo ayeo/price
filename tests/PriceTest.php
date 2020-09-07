@@ -205,7 +205,7 @@ class PriceTest extends TestCase
 
         $this->assertEquals(0.00, $newPrice->getGross());
         $this->assertEquals(0.00, $newPrice->getNett());
-        $this->assertEquals(false, $newPrice->hasTaxRate());
+        $this->assertFalse($newPrice->hasTaxRate());
     }
 
     public function testSubstractingGraterPrice()
@@ -268,6 +268,7 @@ class PriceTest extends TestCase
 
         $this->assertEquals(5, $result->getNett());
         $this->assertEquals(6, $result->getGross());
+        $this->assertFalse($result->hasTaxRate());
     }
 
     public function testSubtractNegativeNett()
@@ -285,6 +286,7 @@ class PriceTest extends TestCase
         $price = new Price(13.34, 15.53, 'USD');
         $newPrice = $price->subtractNett(0.00, 'USD');
         $this->assertTrue($price->isEqual($newPrice));
+        $this->assertFalse($price->hasTaxRate());
     }
 
     public function  testSubtractGross()

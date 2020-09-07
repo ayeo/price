@@ -221,7 +221,7 @@ class Price
         }
 
         return $this->getCalculator($this->getCurrency())
-            ->subtract($this, new Price($grossValue, $grossValue, $currencySymbol, null));
+            ->subtract($this, new Price($this->tax->calculateNett($grossValue), $grossValue, $currencySymbol, null));
     }
 
     /**
@@ -234,7 +234,7 @@ class Price
         }
 
         return $this->getCalculator($this->getCurrency())
-            ->subtract($this, Price::buildByNett($nettValue, $this->getTaxRate(), $currencySymbol));
+            ->subtract($this, new Price($nettValue, $this->tax->calculateGross($nettValue), $currencySymbol, null));
     }
 
     /**
