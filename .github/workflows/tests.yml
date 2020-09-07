@@ -19,5 +19,8 @@ jobs:
       - name: composer install missing files
         run: composer install --dev
       - name: Run tests
-        run: php vendor/bin/phpunit --verbose
-
+        run: php vendor/bin/phpunit --verbose --coverage-clover coverage.xml
+      - uses: codecov/codecov-action@v1
+        with:
+          file: coverage.xml
+          fail_ci_if_error: false
