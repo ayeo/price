@@ -1,5 +1,8 @@
 This is draft, will polish it later
 
+2.0.2
+- Change travis CI to github CI
+
 2.0.1
 - Restore substractNett/substractGross calculation logic
 - Add checks for hasTaxRate during test substractNett/substractGross
