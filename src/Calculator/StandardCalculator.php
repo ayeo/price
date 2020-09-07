@@ -82,8 +82,9 @@ class StandardCalculator implements CalculatorInterface
         }
 
         $nett = $left->getNett() / $times;
+        $gross = $left->getGross() / $times;
 
-        return $this->decoratePrice(Price::buildByNett($nett, $left->getTaxRate(), $left->getCurrencySymbol()));
+        return $this->decoratePrice(new Price($nett, $gross, $left->getCurrencySymbol(), $left->getTaxRate()));
     }
 
     private function buildCurrency(Price $left, Price $right): ?Currency

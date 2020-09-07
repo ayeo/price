@@ -123,18 +123,19 @@ class StandardCalculatorTest extends TestCase
     public function divideDataProvider(): array
     {
         return [
-            [0, 'PLN', 0, 1, 0, 0],
-            [0, 'PLN', 10, 1, 0, 0],
-            [0.01, 'PLN', 0, 0.01, 1, 1],
-            [0.01, 'PLN', 10, 0.01, 1, 1.1],
-            [1, 'PLN', 0, 1, 1, 1],
-            [1, 'PLN', 10, 1, 1, 1.1],
-            [1, 'PLN', 0, 2, 0.5, 0.5],
-            [1, 'PLN', 10, 2, 0.5, 0.55],
-            [100, 'PLN', 0, 100, 1, 1],
-            [100, 'PLN', 10, 100, 1, 1.1],
-            [100, 'PLN', 0, 0.01, 10000, 10000],
-            [100, 'PLN', 10, 0.01, 10000, 11000],
+            [0, 0, 'PLN', 0, 1, 0, 0],
+            [0, 0, 'PLN', 10, 1, 0, 0],
+            [0.01, 0.01, 'PLN', 0, 0.01, 1, 1],
+            [0.1, 0.11, 'PLN', 10, 0.01, 10, 11],
+            [1, 1, 'PLN', 0, 1, 1, 1],
+            [1, 1.1, 'PLN', 10, 1, 1, 1.1],
+            [1, 1, 'PLN', 0, 2, 0.5, 0.5],
+            [1, 1.1, 'PLN', 10, 2, 0.5, 0.55],
+            [100, 100, 'PLN', 0, 100, 1, 1],
+            [100, 110, 'PLN', 10, 100, 1, 1.1],
+            [100, 100, 'PLN', 0, 0.01, 10000, 10000],
+            [100, 110, 'PLN', 10, 0.01, 10000, 11000],
+            [9.7560975609756, 12, 'PLN', 23, 0.8, 12.2, 15],
         ];
     }
 
@@ -142,7 +143,8 @@ class StandardCalculatorTest extends TestCase
      * @dataProvider divideDataProvider
      */
     public function testDivide(
-        float $value,
+        float $nett,
+        float $gross,
         string $currency,
         int $tax,
         float $times,
@@ -150,7 +152,7 @@ class StandardCalculatorTest extends TestCase
         float $resultG
     ): void {
         $calculator = new StandardCalculator();
-        $result = $calculator->divide(Price::buildByNett($value, $tax, $currency), $times);
+        $result = $calculator->divide(new Price($nett, $gross, $currency, $tax), $times);
         $this->assertEquals($resultN, $result->getNett());
         $this->assertEquals($resultG, $result->getGross());
         $this->assertTrue($result->hasTaxRate());
