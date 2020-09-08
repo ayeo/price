@@ -223,12 +223,12 @@ class PriceTest extends TestCase
     /**
      * @dataProvider isEqualDataProvider
      */
-    public function testIsEqual($nettA, $grossA, $nettB, $grossB, $expectIsEqual)
+    public function testIsEqual(float $nA, float $gA, ?string $sA, float $nB, float $gB, ?string $sB, bool $expect): void
     {
-        $A = new Price($nettA, $grossA, 'USD');
-        $B = new Price($nettB, $grossB, 'USD');
+        $A = new Price($nA, $gA, $sA);
+        $B = new Price($nB, $gB, $sB);
 
-        if ($expectIsEqual)
+        if ($expect)
         {
             $this->assertTrue($A->isEqual($B));
             $this->assertTrue($B->isEqual($A));
@@ -243,9 +243,15 @@ class PriceTest extends TestCase
     public function isEqualDataProvider()
     {
         return [
-            [100.00,    123.00,     100.00,     123.00,     true],
-            [100.00,    123.00,     100.01,     123.02,     false],
-            [100.00,    123.00,     100.0014,   123.0021,   true], //fails with precision 4
+            [100.00, 123.00, 'USD', 100.00, 123.00, 'USD', true],
+            [100.00, 123.00, 'USD', 100.01, 123.02, 'USD', false],
+            [100.00, 123.00, 'USD', 100.0014, 123.0021, 'USD', true],
+            [100.00, 123.00, 'USD', 100.00, 123.00, 'EUR', false],
+            [100.00, 123.00, 'USD', 100.01, 123.02, 'EUR', false],
+            [100.00, 123.00, 'USD', 100.0014, 123.0021, 'EUR', false],
+            [100.00, 123.00, null, 100.0014, 123.0021, 'EUR', false],
+            [100.00, 123.00, 'USD', 100.0014, 123.0021, null, false],
+            [100.00, 123.00, null, 100.0014, 123.0021, null, false],
         ];
     }
 
@@ -469,13 +475,13 @@ class PriceTest extends TestCase
         $this->assertEquals(0, $total->getGross());
         $this->assertEquals('PLN', $total->getCurrency());
     }
-    
+
     public function testMultiplyByZero()
     {
         $price = Price::buildByNett(10, 23, 'PLN');
-        
+
         $results = $price->multiply(0);
-        
+
         $this->assertEquals(0, $results->getNett());
         $this->assertEquals(0, $results->getGross());
         $this->assertEquals(23, $results->getTaxRate());
@@ -486,5 +492,40 @@ class PriceTest extends TestCase
         $this->expectExceptionMessage('Multiply param must greater than 0');
         $price = Price::buildByNett(10, 23, 'PLN');
         $price->multiply(-5);
+    }
+
+    public function testToString(): void
+    {
+        $price = Price::buildByNett(10, 23, 'PLN');
+        $this->assertEquals('12.30 PLN', (string)$price);
+    }
+
+    public function isLowerDataProvider(): array
+    {
+        return [
+            [
+                Price::buildByNett(10, 23, 'PLN'),
+                Price::buildByGross(10, 23, 'PLN'),
+                false,
+            ],
+            [
+                Price::buildByGross(10, 23, 'PLN'),
+                Price::buildByGross(10, 23, 'PLN'),
+                true,
+            ],
+            [
+                Price::buildByGross(10, 23, 'PLN'),
+                Price::buildByNett(10, 23, 'PLN'),
+                false,
+            ],
+        ];
+    }
+
+    /**
+     * @dataProvider isLowerDataProvider
+     */
+    public function testIsLower(Price $left, Price $right, bool $isLower): void
+    {
+        $this->assertEquals($isLower, $left->isEqual($right));
     }
 }

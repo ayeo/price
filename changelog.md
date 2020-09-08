@@ -1,5 +1,9 @@
 This is draft, will polish it later
 
+2.0.4
+- Add currency, calculator and price unit tests
+- Remove price unused if statements
+
 2.0.3
 - Fix dividing in StandardCalculator
 - Fix math operations on price without currency symbol

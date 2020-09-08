@@ -28,13 +28,14 @@ class Currency
 
 	/**
 	 * @var string ISO 4217 (3 chars)
+     * @throws \LogicException on invalid symbol
 	 */
 	public function __construct(string $symbol)
 	{
 		$this->symbol =  $this->validate($symbol);
 	}
 
-	public function __toString(): string
+	public function __toString(): ?string
 	{
 		return $this->symbol;
 	}
@@ -52,6 +53,7 @@ class Currency
 
 	private function validate(string $symbol): string
 	{
+	    // we should check symbol is ISO 4217 valid
 		if (preg_match('#^[A-Z]{3}$#', $symbol)) {
 			return strtoupper($symbol);
 		} else {

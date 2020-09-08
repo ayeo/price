@@ -157,4 +157,25 @@ class StandardCalculatorTest extends TestCase
         $this->assertEquals($resultG, $result->getGross());
         $this->assertTrue($result->hasTaxRate());
     }
+
+    public function testDivideNegative(): void
+    {
+        $this->expectException(\LogicException::class);
+        $calculator = new StandardCalculator();
+        $calculator->divide(new Price(1, 1, 'USD'), -1);
+    }
+
+    public function testAddEmpty(): void
+    {
+        $calculator = new StandardCalculator();
+        $left = new Price(1, 1, 'USD');
+        $right = Price::buildEmpty();
+
+        $sum = $calculator->add($left, $right);
+        $this->assertEquals(1, $sum->getNett());
+        $sum = $calculator->add($right, $left);
+        $this->assertEquals(1, $sum->getNett());
+        $sum = $calculator->add($right, $right);
+        $this->assertEquals(0, $sum->getNett());
+    }
 }

@@ -136,14 +136,14 @@ class Price
     	return is_null($this->currency) === false;
     }
 
-    private function compareCurrencies(Price $A, Price $B): bool
+    private function compareCurrencies(Price $left, Price $right): bool
     {
-    	if ($A->hasCurrency() === false && $B->hasCurrency() === false)  {
-	    	return true;
-	    }
+        if ($left->hasCurrency() === false && $right->hasCurrency() === false) {
+            return true;
+        }
 
 	    try {
-		    return $A->getCurrency()->isEqual($B->getCurrency());
+		    return $left->getCurrency()->isEqual($right->getCurrency());
 	    } catch (\LogicException $e) {
 		    return false;
 	    }
@@ -213,10 +213,6 @@ class Price
      */
     public function subtractGross(float $grossValue, string $currencySymbol): Price
     {
-        if (null === $currencySymbol) {
-            $currencySymbol = $this->getCurrencySymbol();
-        }
-
         return $this->getCalculator($this->currency)
             ->subtract($this, new Price($this->tax->calculateNett($grossValue), $grossValue, $currencySymbol, null));
     }
@@ -226,10 +222,6 @@ class Price
      */
     public function subtractNett(float $nettValue, string $currencySymbol): Price
     {
-        if (null === $currencySymbol) {
-            $currencySymbol = $this->getCurrencySymbol();
-        }
-
         return $this->getCalculator($this->currency)
             ->subtract($this, new Price($nettValue, $this->tax->calculateGross($nettValue), $currencySymbol, null));
     }
