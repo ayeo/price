@@ -1,5 +1,8 @@
 This is draft, will polish it later
 
+2.0.5
+- Add simple price value object
+
 2.0.4
 - Add currency, calculator and price unit tests
 - Remove price unused if statements
