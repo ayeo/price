@@ -4,8 +4,8 @@ namespace Ayeo\Price\Calculator;
 
 use Ayeo\Price\Currency;
 use Ayeo\Price\Decorator\Price\DecoratorInterface;
-use Ayeo\Price\Money;
 use Ayeo\Price\Price;
+use Ayeo\Price\PriceValue;
 use LogicException;
 
 class StandardCalculator implements CalculatorInterface
@@ -34,17 +34,17 @@ class StandardCalculator implements CalculatorInterface
         $newNett = $left->getNett() + $right->getNett();
         $taxRate = $this->getTaxForPrices($left, $right);
 
-        return $this->decoratePrice(new Price($newNett, $newGross, $currency, $taxRate));
+        return new Price($newNett, $newGross, $currency, $taxRate);
     }
 
     public function subtract(Price $left, Price $right): Price
     {
         if ($left->isEmpty()) {
-            return $this->decoratePrice(clone $left);
+            return clone $left;
         }
 
         if ($right->isEmpty()) {
-            return $this->decoratePrice(clone $left);
+            return clone $left;
         }
 
         $this->compareCurrencySymbols($left->getCurrency(), $right->getCurrency());
@@ -57,7 +57,7 @@ class StandardCalculator implements CalculatorInterface
 
             }
 
-            return $this->decoratePrice(new Price($newNett, $newGross, $currency, $this->getTaxForPrices($left, $right)));
+            return new Price($newNett, $newGross, $currency, $this->getTaxForPrices($left, $right));
         }
 
         return Price::buildEmpty((string)$currency, $this->getTaxForPrices($left, $right) !== null);
@@ -72,7 +72,7 @@ class StandardCalculator implements CalculatorInterface
         $nett = $left->getNett() * $times;
         $gross = $left->getGross() * $times;
 
-        return $this->decoratePrice(new Price($nett, $gross, $left->getCurrencySymbol(), $left->getTaxRate()));
+        return new Price($nett, $gross, $left->getCurrencySymbol(), $left->getTaxRate());
     }
 
     public function divide(Price $left, float $times): Price
@@ -84,7 +84,7 @@ class StandardCalculator implements CalculatorInterface
         $nett = $left->getNett() / $times;
         $gross = $left->getGross() / $times;
 
-        return $this->decoratePrice(new Price($nett, $gross, $left->getCurrencySymbol(), $left->getTaxRate()));
+        return new Price($nett, $gross, $left->getCurrencySymbol(), $left->getTaxRate());
     }
 
     private function buildCurrency(Price $left, Price $right): ?Currency
@@ -147,7 +147,7 @@ class StandardCalculator implements CalculatorInterface
         return $left->getTaxRate() === $right->getTaxRate();
     }
 
-    public function decoratePrice(Price $price): Price
+    public function decoratePrice(PriceValue $price): PriceValue
     {
         foreach ($this->decorators as $decorator) {
             $price = $decorator->decoratePrice($price);

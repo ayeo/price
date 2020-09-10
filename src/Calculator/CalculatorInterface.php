@@ -4,6 +4,7 @@ namespace Ayeo\Price\Calculator;
 
 use Ayeo\Price\Money;
 use Ayeo\Price\Price;
+use Ayeo\Price\PriceValue;
 use LogicException;
 
 interface CalculatorInterface
@@ -24,5 +25,5 @@ interface CalculatorInterface
      * @throws LogicException
      */
     public function divide(Price $left, float $times): Price;
-    public function decoratePrice(Price $price): Price;
+    public function decoratePrice(PriceValue $price): PriceValue;
 }

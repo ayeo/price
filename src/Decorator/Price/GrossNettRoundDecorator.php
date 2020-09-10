@@ -2,7 +2,8 @@
 
 namespace Ayeo\Price\Decorator\Price;
 
-use Ayeo\Price\Price;
+use Ayeo\Price\Money;
+use Ayeo\Price\PriceValue;
 
 class GrossNettRoundDecorator implements DecoratorInterface
 {
@@ -13,13 +14,14 @@ class GrossNettRoundDecorator implements DecoratorInterface
         $this->precision = $precision;
     }
 
-    public function decoratePrice(Price $price): Price
+    public function decoratePrice(PriceValue $price): PriceValue
     {
-        return new Price(
-            round($price->getNett(), $this->precision),
-            round($price->getGross(), $this->precision),
-            $price->getCurrencySymbol(),
-            $price->hasTaxRate() ? $price->getTaxRate() : null
+        return new PriceValue(
+            new Money(round($price->getNett()->getValue(), $this->precision)),
+            new Money(round($price->getGross()->getValue(), $this->precision)),
+            $price->getTax(),
+            $price->isMixedTax(),
+            $price->getCurrency()
         );
     }
 }
