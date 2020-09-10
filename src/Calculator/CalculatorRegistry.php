@@ -20,7 +20,7 @@ class CalculatorRegistry
     public static function getInstance(): CalculatorRegistry
     {
         if (null === self::$instance) {
-            self::$instance = new CalculatorRegistry(new StandardCalculator(new GrossNettRoundDecorator(4)));
+            self::$instance = new CalculatorRegistry(new StandardCalculator(new GrossNettRoundDecorator(2)));
         }
 
         return self::$instance;

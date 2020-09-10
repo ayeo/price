@@ -251,7 +251,7 @@ class PriceTest extends TestCase
             [100.00, 123.00, 'USD', 100.0014, 123.0021, 'EUR', false],
             [100.00, 123.00, null, 100.0014, 123.0021, 'EUR', false],
             [100.00, 123.00, 'USD', 100.0014, 123.0021, null, false],
-            [100.00, 123.00, null, 100.0014, 123.0021, null, false],
+            [100.00, 123.00, null, 100.0014, 123.0021, null, true], // round prices so are same
         ];
     }
 
