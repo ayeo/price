@@ -35,7 +35,7 @@ class Currency
 		$this->symbol =  $this->validate($symbol);
 	}
 
-	public function __toString(): ?string
+	public function __toString(): string
 	{
 		return $this->symbol;
 	}
